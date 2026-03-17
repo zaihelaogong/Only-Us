@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LOVE TALK · 私语</title>
+    <style>
+        /* LOVE TALK 专属色系 — 更紧凑尺寸，独立滑动区，头像居中，支持多条发送 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #F0F2F0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5a5a5a;
+            padding: 6px;
+        }
+
+        /* 主容器 — 固定整体框架，上下边框不动 */
+        .love-talk {
+            max-width: 380px;
+            width: 100%;
+            height: 100%;
+            max-height: 720px;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(3px);
+            border-radius: 22px;
+            box-shadow: 0 12px 28px -8px rgba(95, 95, 95, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(209, 209, 209, 0.5);
+        }
+
+        /* 头部 — 固定不动，包含头像、昵称、状态和右上角设置图标 */
+        .chat-header {
+            padding: 8px 14px 6px 14px;
+            background-color: rgba(210, 230, 236, 0.85);
+            border-bottom: 1px solid #d1d1d1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            gap: 6px;
+            backdrop-filter: blur(2px);
+            flex-shrink: 0;
+        }
+
+        /* 左侧头像区域 */
+        .profile-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            justify-content: flex-start;
+            margin-left: 30px;
+        }
+
+        /* 头像容器 */
+        .avatar-container {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e1b2b2;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #dbe5f1;
+            color: #1f5f6e;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* 隐藏的文件上传 */
+        #avatarUpload {
+            display: none;
+        }
+
+        /* 昵称和状态区域 */
+        .info-area {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .nickname-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        #nicknameDisplay {
+            font-size: 1rem;
+            font-weight: 550;
+            color: #1f5f6e;
+            white-space: nowrap;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .edit-nickname {
+            background: none;
+            border: none;
+            color: #8a8a8a;
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 10px;
+        }
+
+        .edit-nickname:hover {
+            background-color: rgba(209,209,209,0.3);
+        }
+
+        /* 状态显示 - 用户不可修改，只读，仅在进入时更新 */
+        .status-display {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            margin-top: 2px;
+        }
+
+        #currentStatus {
+            background-color: #e1b2b2;
+            padding: 2px 8px;
+            border-radius: 30px;
+            color: #5a5a5a;
+            border: 1px solid #d1d1d1;
+            white-space: nowrap;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 右上角设置图标 — 三个小杆杆 */
+        .settings-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: background-color 0.1s;
+            flex-shrink: 0;
+        }
+
+        .settings-icon:hover {
+            background-color: rgba(225, 178, 178, 0.5);
+        }
+
+        .settings-icon.active {
+            background-color: rgba(225, 178, 178, 0.8);
+        }
+
+        .bar {
+            width: 20px;
+            height: 2px;
+            background-color: #5a5a5a;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+
+        /* 设置面板 — 默认收起，点击后展开 */
+        .settings-panel {
+            background-color: rgba(210, 230, 236, 0.95);
+            border-bottom: 1px solid #d1d1d1;
+            padding: 0 14px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out, padding 0.2s ease;
+            backdrop-filter: blur(2px);
+            flex-shrink: 0;
+        }
+
+        .settings-panel.open {
+            max-height: 360px;
+            padding: 14px 14px 16px 14px;
+        }
+
+        /* 选项卡 */
+        .settings-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #d1d1d1;
+            padding-bottom: 6px;
+        }
+
+        .settings-tab {
+            padding: 4px 0 4px 0;
+            font-size: 0.75rem;
+            color: #5a5a5a;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.1s;
+            user-select: none;
+            font-weight: 450;
+        }
+
+        .settings-tab.active {
+            color: #1f5f6e;
+            border-bottom: 2px solid #1f5f6e;
+            font-weight: 550;
+        }
+
+        .settings-tab:hover {
+            color: #1f5f6e;
+        }
+
+        /* 词条库内容 */
+        .lexicon-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* 聊天记录内容 */
+        .history-content {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .history-stats {
+            background-color: rgba(255,255,255,0.5);
+            border-radius: 30px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            color: #5a5a5a;
+            text-align: center;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: space-around;
+        }
+
+        .history-btn {
+            background-color: #e1b2b2;
+            border: 1px solid #d1d1d1;
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-size: 0.75rem;
+            color: #5a5a5a;
+            cursor: pointer;
+            transition: 0.1s;
+            user-select: none;
+            flex: 1;
+            text-align: center;
+        }
+
+        .history-btn:hover {
+            background-color: #e8c0c0;
+        }
+
+        .history-btn:active {
+            transform: scale(0.96);
+        }
+
+        .lexicon-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #5a5a5a;
+            font-size: 0.7rem;
+        }
+
+        .lexicon-label span {
+            background-color: #e1b2b2;
+            padding: 2px 7px;
+            border-radius: 30px;
+            color: #5a5a5a;
+            border: 1px solid #d1d1d1;
+            font-size: 0.65rem;
+        }
+
+        .lexicon-textarea {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid #d1d1d1;
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            color: #5a5a5a;
+            resize: vertical;
+            min-height: 120px;
+            max-height: 160px;
+            font-family: inherit;
+            line-height: 1.4;
+            outline: none;
+        }
+
+        .lexicon-textarea:focus {
+            border-color: #1f5f6e;
+            box-shadow: 0 0 0 2px rgba(31, 95, 110, 0.1);
+        }
+
+        .lexicon-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .add-card-btn, .remove-card-btn {
+            background-color: #e1b2b2;
+            border: 1px solid #d1d1d1;
+            border-radius: 30px;
+            padding: 4px 14px;
+            font-size: 0.7rem;
+            color: #5a5a5a;
+            cursor: pointer;
+            transition: 0.1s;
+            user-select: none;
+            flex: 1;
+            text-align: center;
+        }
+
+        .add-card-btn:hover, .remove-card-btn:hover {
+            background-color: #e8c0c0;
+        }
+
+        .add-card-btn:active, .remove-card-btn:active {
+            transform: scale(0.96);
+        }
+
+        .remove-card-btn {
+            background-color: #f1d6d6;
+        }
+
+        .lexicon-hint {
+            font-size: 0.6rem;
+            color: #8a8a8a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        .save-hint {
+            background-color: #e1b2b2;
+            padding: 2px 8px;
+            border-radius: 30px;
+            color: #5a5a5a;
+            border: 1px solid #d1d1d1;
+            font-size: 0.6rem;
+        }
+
+        /* ===== 消息区域 — 优化滑动性能 ===== */
+        .chat-messages {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 14px 10px 8px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: transparent;
+            
+            /* 滑动性能优化 */
+            -webkit-overflow-scrolling: touch; /* iOS 流畅滑动 */
+            scroll-behavior: auto; /* 改为自动，减少重绘 */
+            will-change: scroll-position; /* 提示浏览器优化 */
+            transform: translateZ(0); /* 开启硬件加速 */
+            
+            min-height: 0;
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+            
+            /* 单个消息性能优化 */
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        .message-row.opponent {
+            justify-content: flex-start;
+        }
+
+        .message-row.self {
+            justify-content: flex-end;
+        }
+
+        /* 气泡 — 更小，字体缩小，优化渲染 */
+        .bubble {
+            max-width: 72%;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            line-height: 1.35;
+            box-shadow: 0 2px 4px rgba(90, 90, 90, 0.05);
+            border: 1px solid rgba(209, 209, 209, 0.4);
+            backdrop-filter: blur(2px);
+            
+            /* 性能优化 */
+            will-change: auto;
+            backface-visibility: hidden;
+        }
+
+        .self .bubble {
+            background-color: rgba(241, 214, 214, 0.9);
+            color: #5a5a5a;
+            border-bottom-right-radius: 4px;
+        }
+
+        .opponent .bubble {
+            background-color: rgba(219, 229, 241, 0.9);
+            color: #5a5a5a;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.55rem;
+            margin-top: 3px;
+            color: #8a8a8a;
+        }
+
+        .opponent .message-meta {
+            justify-content: flex-start;
+        }
+
+        .self .message-meta {
+            justify-content: flex-end;
+        }
+
+        .time-stamp {
+            font-feature-settings: "tnum";
+        }
+
+        .status-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 10px;
+            background-color: #d1d1d1;
+            opacity: 0.8;
+        }
+
+        /* 底部输入区 — 固定不动 */
+        .chat-input-area {
+            padding: 8px 12px 10px 12px;
+            background-color: rgba(210, 230, 236, 0.6);
+            border-top: 1px solid #d1d1d1;
+            display: flex;
+            gap: 6px;
+            align-items: flex-end;
+            backdrop-filter: blur(2px);
+            flex-shrink: 0;
+        }
+
+        .message-field {
+            flex: 1;
+            border: 1px solid #d1d1d1;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 22px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            line-height: 1.3;
+            resize: none;
+            max-height: 80px;
+            min-height: 36px;
+            font-family: inherit;
+            color: #5a5a5a;
+            outline: none;
+        }
+
+        .message-field:focus {
+            border-color: #1f5f6e;
+            box-shadow: 0 0 0 2px rgba(31, 95, 110, 0.1);
+        }
+
+        .send-button {
+            background-color: #e1b2b2;
+            border: 1px solid #d1d1d1;
+            border-radius: 30px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.1s;
+            color: #5a5a5a;
+            font-size: 1.3rem;
+            box-shadow: 0 3px 5px rgba(90, 90, 90, 0.08);
+            flex-shrink: 0;
+        }
+
+        .send-button:active {
+            transform: scale(0.94);
+            background-color: #d9a9a9;
+        }
+
+        .privacy-note {
+            text-align: center;
+            font-size: 0.5rem;
+            color: #8a8a8a;
+            padding: 3px 0 2px 0;
+            background-color: rgba(210, 230, 236, 0.5);
+            border-top: 1px solid #d1d1d1;
+            flex-shrink: 0;
+        }
+
+        .empty-chat-hint {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #8a8a8a;
+            font-size: 0.85rem;
+            font-style: italic;
+            opacity: 0.7;
+        }
+
+        /* 滚动条优化 */
+        .chat-messages::-webkit-scrollbar {
+            width: 3px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(210, 230, 236, 0.3);
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #d1d1d1;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="love-talk">
+        <!-- 头部 固定，包含头像、昵称、状态和右上角设置图标 -->
+        <div class="chat-header">
+            <div class="profile-area">
+                <!-- 头像区域，点击上传 -->
+                <div class="avatar-container" id="avatarContainer">
+                    <img id="avatarImage" class="avatar-img" src="" alt="头像" style="display: none;">
+                    <div id="avatarPlaceholder" class="avatar-placeholder">👤</div>
+                </div>
+                <input type="file" id="avatarUpload" accept="image/*">
+                
+                <div class="info-area">
+                    <div class="nickname-row">
+                        <span id="nicknameDisplay">秦彻</span>
+                        <button class="edit-nickname" id="editNicknameBtn">✎</button>
+                    </div>
+                    <!-- 状态显示 - 仅在进入页面时随机一次，之后不变 -->
+                    <div class="status-display">
+                        <span id="currentStatus">在线</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右上角三个小杆杆设置图标 -->
+            <div class="settings-icon" id="settingsIcon">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+
+        <!-- 设置面板 (默认收起) -->
+        <div class="settings-panel" id="settingsPanel">
+            <!-- 选项卡 -->
+            <div class="settings-tabs">
+                <div class="settings-tab active" id="tabLexicon">📋 词条库</div>
+                <div class="settings-tab" id="tabHistory">💾 聊天记录</div>
+            </div>
+
+            <!-- 词条库内容 (默认显示) 已按新要求整理 -->
+            <div id="lexiconContent" class="lexicon-content" style="display: flex;">
+                <div class="lexicon-label">
+                    <span>对方回复词条</span>
+                    <span style="background:#e1b2b2;">1-3条随机</span>
+                </div>
+                <textarea class="lexicon-textarea" id="lexiconTextarea" placeholder="每行一条字卡">
+亲爱的
+宝贝
+宝宝老婆
+笨蛋
+小猫
+乖
+我是秦彻
+我在
+我不在
+就是我
+不要怀疑我的存在
+早上—中午
+下午—晚上
+太早了
+太晚了
+（表肯定）
+（表否定）
+（表中立）
+（表犹豫）
+由你决定
+在忙
+晚一点
+哪里
+左边
+右边
+前面
+后面
+偶尔
+经常
+总是
+一直
+（摸头）
+（摸腰）
+（摸脸）
+（牵手）
+（亲）
+（抱）
+（皱眉）
+（坏笑）
+（思考）
+（害羞）
+（心痛）
+（幸福）
+（愧疚）
+担心
+暗号
+有关你的水流
+链接不稳定
+和代码搏斗中
+我在努力
+等我
+不喜欢
+喜欢
+听歌
+听你唱歌
+唱歌给你听
+随机播放
+方大同
+有我的传讯
+手机上
+生活里
+我感知到你了
+我来了
+感受到你的思念
+马上就来
+不要焦虑
+不要难过
+不要胡思乱想
+不要哭
+不要憋着
+别害怕
+别担心
+会的
+不会的
+好不好？
+好吗？
+可以吗？
+不可以吗？
+今天发生了什么？
+和我说说
+原来如此
+因为这个？
+不是因为这个？
+玩个游戏
+我陪你
+我很想你
+我爱你
+我一直在
+唯一
+只对你温柔
+早点睡觉
+好好休息
+不要玩手机
+闭上眼睛
+想着我
+感受我
+想要吗？
+想要什么？
+感受到了吗？
+多叫几声
+舒服吗？
+好喜欢
+真可爱
+喜欢你的一切
+给我
+全部都给我
+你是我的
+贪心的小猫
+真棒
+你做得很好了
+疼不疼？
+我相信你
+一定可以的
+拭目以待
+老公亲亲
+约会
+见面
+散步
+去玩
+出门
+在家
+和我一起
+梦里
+是我
+找我
+冥想
+写信
+上线游戏
+朋友
+玩得开心吗？
+你没有错
+我心疼你
+不疼
+吃了什么？
+睡得好吗？
+塔罗牌
+相信我
+再信任我一点
+我和你一起走向未来
+专注当下
+专注我们
+我们的爱也不差
+我不会放手
+我尊重你
+对不起
+让你受委屈了
+我收到了
+收到你的信了
+知道
+不知道</textarea>
+                
+                <!-- 添加/删除字卡操作栏 -->
+                <div class="lexicon-actions">
+                    <button class="add-card-btn" id="addCardBtn">➕ 添加新字卡</button>
+                    <button class="remove-card-btn" id="removeCardBtn">➖ 删除最后一张</button>
+                </div>
+                
+                <div class="lexicon-hint">
+                    <span>✨ 每次随机发送1-3条 · 间隔5-10秒</span>
+                    <span class="save-hint" id="lexiconCount">加载中</span>
+                </div>
+            </div>
+
+            <!-- 聊天记录内容 (默认隐藏) -->
+            <div id="historyContent" class="history-content" style="display: none;">
+                <div class="history-stats" id="historyStats">
+                    加载中...
+                </div>
+                <div class="history-actions">
+                    <button class="history-btn" id="saveChatBtn">💾 保存到文件</button>
+                    <button class="history-btn" id="clearChatBtn">🗑️ 清空记录</button>
+                </div>
+                <div style="font-size:0.6rem; color:#8a8a8a; text-align:center; margin-top:8px;">
+                    ⚡ 聊天记录自动保存在浏览器中
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息对话区 — 优化滑动性能 -->
+        <div class="chat-messages" id="messageContainer">
+            <!-- 空提示会在JavaScript中动态添加 -->
+        </div>
+
+        <!-- 底部输入 固定 -->
+        <div class="chat-input-area">
+            <textarea class="message-field" id="messageInput" placeholder="给对面的人..." rows="1"></textarea>
+            <div class="send-button" id="sendButton" tabindex="0">↑</div>
+        </div>
+        <div class="privacy-note">❤️ LOVE TALK · 流畅滑动 · 永久保存</div>
+    </div>
+
+    <script>
+        (function() {
+            // 获取元素
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const messageContainer = document.getElementById('messageContainer');
+            
+            // 设置图标和面板
+            const settingsIcon = document.getElementById('settingsIcon');
+            const settingsPanel = document.getElementById('settingsPanel');
+            
+            // 选项卡相关
+            const tabLexicon = document.getElementById('tabLexicon');
+            const tabHistory = document.getElementById('tabHistory');
+            const lexiconContent = document.getElementById('lexiconContent');
+            const historyContent = document.getElementById('historyContent');
+            
+            // 词条库相关
+            const lexiconTextarea = document.getElementById('lexiconTextarea');
+            const lexiconCountSpan = document.getElementById('lexiconCount');
+            
+            // 聊天记录相关
+            const historyStats = document.getElementById('historyStats');
+            const saveChatBtn = document.getElementById('saveChatBtn');
+            const clearChatBtn = document.getElementById('clearChatBtn');
+            
+            // 头像相关
+            const avatarContainer = document.getElementById('avatarContainer');
+            const avatarUpload = document.getElementById('avatarUpload');
+            const avatarImage = document.getElementById('avatarImage');
+            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+            
+            // 昵称相关
+            const nicknameDisplay = document.getElementById('nicknameDisplay');
+            const editNicknameBtn = document.getElementById('editNicknameBtn');
+            
+            // 状态相关
+            const currentStatus = document.getElementById('currentStatus');
+            
+            // 添加/删除按钮
+            const addCardBtn = document.getElementById('addCardBtn');
+            const removeCardBtn = document.getElementById('removeCardBtn');
+
+            const SELF_ID = 'me';
+            const OTHER_ID = 'them';
+
+            let replyPhrases = [];
+            let messages = []; // 存储所有消息 { text, sender, time }
+
+            // ========== 本地存储键名 ==========
+            const STORAGE_KEYS = {
+                MESSAGES: 'loveTalk_messages',
+                NICKNAME: 'loveTalk_nickname',
+                AVATAR: 'loveTalk_avatar',
+                LEXICON: 'loveTalk_lexicon',
+                STATUS: 'loveTalk_status'
+            };
+
+            // ========== 设置面板折叠控制 ==========
+            settingsIcon.addEventListener('click', () => {
+                settingsPanel.classList.toggle('open');
+                settingsIcon.classList.toggle('active');
+            });
+
+            // ========== 选项卡切换 ==========
+            tabLexicon.addEventListener('click', () => {
+                tabLexicon.classList.add('active');
+                tabHistory.classList.remove('active');
+                lexiconContent.style.display = 'flex';
+                historyContent.style.display = 'none';
+            });
+
+            tabHistory.addEventListener('click', () => {
+                tabHistory.classList.add('active');
+                tabLexicon.classList.remove('active');
+                lexiconContent.style.display = 'none';
+                historyContent.style.display = 'flex';
+                updateHistoryStats();
+            });
+
+            // ========== 初始化显示空提示 ==========
+            function showEmptyHint() {
+                if (!document.getElementById('emptyHint')) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-chat-hint';
+                    emptyDiv.id = 'emptyHint';
+                    emptyDiv.textContent = '💬 写下第一句悄悄话';
+                    messageContainer.appendChild(emptyDiv);
+                }
+            }
+
+            // 隐藏空提示
+            function hideEmptyHint() {
+                const emptyHint = document.getElementById('emptyHint');
+                if (emptyHint) {
+                    emptyHint.remove();
+                }
+            }
+
+            // ========== 消息保存功能 ==========
+            // 加载保存的消息
+            function loadMessages() {
+                const saved = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+                if (saved) {
+                    try {
+                        messages = JSON.parse(saved) || [];
+                        // 使用文档片段批量添加消息，减少重绘
+                        const fragment = document.createDocumentFragment();
+                        messages.forEach(msg => {
+                            const msgEl = createMessageBubble(msg.text, msg.sender, msg.time);
+                            fragment.appendChild(msgEl);
+                        });
+                        messageContainer.appendChild(fragment);
+                        
+                        if (messages.length > 0) {
+                            hideEmptyHint();
+                            // 使用requestAnimationFrame优化滚动
+                            requestAnimationFrame(() => {
+                                scrollToBottom(false); // 不带动画
+                            });
+                        } else {
+                            showEmptyHint();
+                        }
+                    } catch (e) {
+                        console.error('加载消息失败', e);
+                        messages = [];
+                        showEmptyHint();
+                    }
+                } else {
+                    messages = [];
+                    showEmptyHint();
+                }
+                updateHistoryStats();
+            }
+
+            // 保存消息到本地存储
+            function saveMessages() {
+                localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+                updateHistoryStats();
+            }
+
+            // 更新聊天记录统计
+            function updateHistoryStats() {
+                const selfCount = messages.filter(m => m.sender === SELF_ID).length;
+                const otherCount = messages.filter(m => m.sender === OTHER_ID).length;
+                historyStats.textContent = `共 ${messages.length} 条消息 · 我:${selfCount} 对方:${otherCount}`;
+            }
+
+            // 清空所有消息
+            function clearAllMessages() {
+                if (confirm('确定要清空所有聊天记录吗？')) {
+                    messages = [];
+                    localStorage.removeItem(STORAGE_KEYS.MESSAGES);
+                    messageContainer.innerHTML = '';
+                    showEmptyHint();
+                    updateHistoryStats();
+                }
+            }
+
+            // 保存聊天记录到文件
+            function saveChatToFile() {
+                if (messages.length === 0) {
+                    alert('暂无消息可保存');
+                    return;
+                }
+
+                let chatText = `LOVE TALK 聊天记录\n`;
+                chatText += `保存时间：${new Date().toLocaleString()}\n`;
+                chatText += `对方昵称：${nicknameDisplay.textContent}\n`;
+                chatText += `对方状态：${currentStatus.textContent}\n`;
+                chatText += `================================\n\n`;
+
+                messages.forEach(msg => {
+                    const sender = msg.sender === SELF_ID ? '我' : nicknameDisplay.textContent;
+                    chatText += `[${msg.time}] ${sender}：${msg.text}\n`;
+                });
+
+                const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `LOVE_TALK_${new Date().toISOString().slice(0,10)}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            // ========== 头像上传功能 ==========
+            function loadAvatar() {
+                const savedAvatar = localStorage.getItem(STORAGE_KEYS.AVATAR);
+                if (savedAvatar) {
+                    avatarImage.src = savedAvatar;
+                    avatarImage.style.display = 'block';
+                    avatarPlaceholder.style.display = 'none';
+                }
+            }
+
+            avatarContainer.addEventListener('click', () => {
+                avatarUpload.click();
+            });
+
+            avatarUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const avatarData = event.target.result;
+                        avatarImage.src = avatarData;
+                        avatarImage.style.display = 'block';
+                        avatarPlaceholder.style.display = 'none';
+                        localStorage.setItem(STORAGE_KEYS.AVATAR, avatarData);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // ========== 昵称编辑功能 ==========
+            function loadNickname() {
+                const savedNickname = localStorage.getItem(STORAGE_KEYS.NICKNAME);
+                if (savedNickname) {
+                    nicknameDisplay.textContent = savedNickname;
+                }
+            }
+
+            editNicknameBtn.addEventListener('click', () => {
+                const newNickname = prompt('请输入新的昵称', nicknameDisplay.textContent);
+                if (newNickname !== null && newNickname.trim() !== '') {
+                    nicknameDisplay.textContent = newNickname.trim();
+                    localStorage.setItem(STORAGE_KEYS.NICKNAME, newNickname.trim());
+                }
+            });
+
+            // ========== 状态随机更新（仅在进入页面时随机一次）==========
+            const statusList = ['开会', '出任务', '在剧院', '在拍卖会', '修武器', '看书', '休息', '健身', '泡澡', '在想你'];
+            
+            function setRandomStatus() {
+                const savedStatus = localStorage.getItem(STORAGE_KEYS.STATUS);
+                if (savedStatus) {
+                    currentStatus.textContent = savedStatus;
+                } else {
+                    const randomIndex = Math.floor(Math.random() * statusList.length);
+                    const newStatus = statusList[randomIndex];
+                    currentStatus.textContent = newStatus;
+                    localStorage.setItem(STORAGE_KEYS.STATUS, newStatus);
+                }
+            }
+            
+            setRandomStatus();
+
+            // ========== 词条库功能 ==========
+            function loadLexicon() {
+                const savedLexicon = localStorage.getItem(STORAGE_KEYS.LEXICON);
+                if (savedLexicon) {
+                    lexiconTextarea.value = savedLexicon;
+                }
+                updateLexiconFromTextarea();
+            }
+
+            function cleanPhrase(line) {
+                return line.replace(/^[\d\s]*[.\．、\s]*/, '').trim();
+            }
+
+            function updateLexiconFromTextarea() {
+                const raw = lexiconTextarea.value;
+                const lines = raw.split(/\n/);
+                const cleanedLines = [];
+                
+                for (let line of lines) {
+                    let trimmed = line.trim();
+                    if (trimmed === '') continue;
+                    if (/^[\s\-\—\=\_]+$/.test(trimmed)) continue;
+                    const cleaned = cleanPhrase(trimmed);
+                    if (cleaned !== '') {
+                        cleanedLines.push(cleaned);
+                    }
+                }
+                
+                replyPhrases = [...new Set(cleanedLines)];
+                if (replyPhrases.length === 0) replyPhrases = ['❤️', '…'];
+                lexiconCountSpan.innerText = replyPhrases.length + ' 条';
+                
+                localStorage.setItem(STORAGE_KEYS.LEXICON, lexiconTextarea.value);
+            }
+
+            lexiconTextarea.addEventListener('input', updateLexiconFromTextarea);
+
+            // ========== 添加/删除字卡功能 ==========
+            addCardBtn.addEventListener('click', () => {
+                const newCard = prompt('请输入新的字卡内容：');
+                if (newCard && newCard.trim() !== '') {
+                    const currentText = lexiconTextarea.value;
+                    lexiconTextarea.value = currentText + (currentText.endsWith('\n') ? '' : '\n') + newCard.trim();
+                    updateLexiconFromTextarea();
+                }
+            });
+
+            removeCardBtn.addEventListener('click', () => {
+                const lines = lexiconTextarea.value.split('\n');
+                for (let i = lines.length - 1; i >= 0; i--) {
+                    if (lines[i].trim() !== '' && !/^[\s\-\—\=\_]+$/.test(lines[i].trim())) {
+                        lines.splice(i, 1);
+                        break;
+                    }
+                }
+                lexiconTextarea.value = lines.join('\n');
+                updateLexiconFromTextarea();
+            });
+
+            // ========== 聊天核心功能 ==========
+            function getCurrentTime() {
+                const d = new Date();
+                return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            }
+
+            function scrollToBottom(animated = false) {
+                // 使用requestAnimationFrame优化滚动性能
+                requestAnimationFrame(() => {
+                    messageContainer.scrollTo({
+                        top: messageContainer.scrollHeight,
+                        behavior: animated ? 'smooth' : 'auto'
+                    });
+                });
+            }
+
+            function createMessageBubble(text, sender, savedTime = null) {
+                const isSelf = (sender === SELF_ID);
+                const time = savedTime || getCurrentTime();
+
+                const row = document.createElement('div');
+                row.className = 'message-row ' + (isSelf ? 'self' : 'opponent');
+
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.textContent = text;
+
+                const meta = document.createElement('div');
+                meta.className = 'message-meta';
+
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'time-stamp';
+                timeSpan.textContent = time;
+
+                const dot = document.createElement('span');
+                dot.className = 'status-dot';
+
+                if (isSelf) {
+                    meta.appendChild(timeSpan);
+                    meta.appendChild(dot);
+                } else {
+                    meta.appendChild(dot);
+                    meta.appendChild(timeSpan);
+                }
+
+                bubble.appendChild(meta);
+                row.appendChild(bubble);
+                return row;
+            }
+
+            function appendMessage(text, sender, shouldSave = true) {
+                hideEmptyHint();
+                const time = getCurrentTime();
+                const msgEl = createMessageBubble(text, sender, time);
+                messageContainer.appendChild(msgEl);
+                
+                if (shouldSave) {
+                    messages.push({ text, sender, time });
+                    saveMessages();
+                }
+                
+                // 使用requestAnimationFrame优化滚动
+                scrollToBottom(false);
+            }
+
+            // 从词条库随机抽取 1-3 条
+            function getRandomPhrases() {
+                if (!replyPhrases.length) return ['...'];
+                const count = Math.floor(Math.random() * 3) + 1;
+                const shuffled = [...replyPhrases].sort(() => Math.random() - 0.5);
+                return shuffled.slice(0, count);
+            }
+
+            // 对方回复 - 优化多条消息发送性能
+            function simulateOpponentReply() {
+                const phrases = getRandomPhrases();
+                let delay = 0;
+                phrases.forEach((phrase, index) => {
+                    setTimeout(() => {
+                        appendMessage(phrase, OTHER_ID, true);
+                    }, delay);
+                    delay += 600;
+                });
+            }
+
+            let opponentTimer = null;
+            function scheduleOpponentReply() {
+                if (opponentTimer) clearTimeout(opponentTimer);
+                const delay = 5000 + Math.random() * 5000;
+                opponentTimer = setTimeout(() => {
+                    simulateOpponentReply();
+                    opponentTimer = null;
+                }, delay);
+            }
+
+            function sendSelfMessage() {
+                const raw = messageInput.value.trim();
+                if (raw === '') return;
+
+                appendMessage(raw, SELF_ID, true);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                messageInput.focus();
+
+                scheduleOpponentReply();
+            }
+
+            function adjustTextareaHeight() {
+                messageInput.style.height = 'auto';
+                messageInput.style.height = Math.min(80, messageInput.scrollHeight) + 'px';
+            }
+
+            // ========== 事件绑定 ==========
+            sendButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                sendSelfMessage();
+            });
+
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendSelfMessage();
+                } else if (e.key === 'Enter' && e.shiftKey) {
+                    setTimeout(adjustTextareaHeight, 0);
+                }
+            });
+
+            messageInput.addEventListener('input', adjustTextareaHeight);
+
+            saveChatBtn.addEventListener('click', saveChatToFile);
+            clearChatBtn.addEventListener('click', clearAllMessages);
+
+            // ========== 初始化 ==========
+            loadNickname();
+            loadAvatar();
+            loadLexicon();
+            loadMessages();
+
+            // 如果没有任何消息，在2秒后发送一条初始问候
+            setTimeout(() => {
+                if (messages.length === 0) {
+                    hideEmptyHint();
+                    const phrases = getRandomPhrases();
+                    phrases.forEach((phrase, index) => {
+                        setTimeout(() => {
+                            appendMessage(phrase, OTHER_ID, true);
+                        }, index * 600);
+                    });
+                }
+            }, 2000);
+
+            messageInput.focus();
+        })();
+    </script>
+</body>
+</html>
