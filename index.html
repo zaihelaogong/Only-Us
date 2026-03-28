@@ -23,7 +23,6 @@
             padding: 6px;
         }
 
-        /* 主容器 — 固定整体框架，上下边框不动 */
         .love-talk {
             max-width: 380px;
             width: 100%;
@@ -39,7 +38,7 @@
             border: 1px solid rgba(209, 209, 209, 0.5);
         }
 
-        /* 头部 — 固定不动，包含头像、昵称、状态和右上角设置图标 */
+        /* 头部 */
         .chat-header {
             padding: 8px 14px 6px 14px;
             background-color: rgba(210, 230, 236, 0.85);
@@ -53,7 +52,6 @@
             flex-shrink: 0;
         }
 
-        /* 左侧头像区域 */
         .profile-area {
             display: flex;
             align-items: center;
@@ -63,7 +61,6 @@
             margin-left: 30px;
         }
 
-        /* 头像容器 */
         .avatar-container {
             position: relative;
             width: 40px;
@@ -96,12 +93,8 @@
             font-weight: 500;
         }
 
-        /* 隐藏的文件上传 */
-        #avatarUpload {
-            display: none;
-        }
+        #avatarUpload { display: none; }
 
-        /* 昵称和状态区域 */
         .info-area {
             display: flex;
             flex-direction: column;
@@ -135,11 +128,6 @@
             border-radius: 10px;
         }
 
-        .edit-nickname:hover {
-            background-color: rgba(209,209,209,0.3);
-        }
-
-        /* 状态显示 - 用户不可修改，只读，仅在进入时更新 */
         .status-display {
             display: flex;
             align-items: center;
@@ -160,7 +148,6 @@
             text-overflow: ellipsis;
         }
 
-        /* 右上角设置图标 — 三个小杆杆 */
         .settings-icon {
             width: 36px;
             height: 36px;
@@ -175,23 +162,10 @@
             flex-shrink: 0;
         }
 
-        .settings-icon:hover {
-            background-color: rgba(225, 178, 178, 0.5);
-        }
+        .settings-icon:hover { background-color: rgba(225, 178, 178, 0.5); }
+        .settings-icon.active { background-color: rgba(225, 178, 178, 0.8); }
+        .bar { width: 20px; height: 2px; background-color: #5a5a5a; border-radius: 2px; }
 
-        .settings-icon.active {
-            background-color: rgba(225, 178, 178, 0.8);
-        }
-
-        .bar {
-            width: 20px;
-            height: 2px;
-            background-color: #5a5a5a;
-            border-radius: 2px;
-            transition: all 0.2s;
-        }
-
-        /* 设置面板 — 默认收起，点击后展开 */
         .settings-panel {
             background-color: rgba(210, 230, 236, 0.95);
             border-bottom: 1px solid #d1d1d1;
@@ -204,11 +178,10 @@
         }
 
         .settings-panel.open {
-            max-height: 360px;
+            max-height: 550px;
             padding: 14px 14px 16px 14px;
         }
 
-        /* 选项卡 */
         .settings-tabs {
             display: flex;
             gap: 16px;
@@ -218,14 +191,11 @@
         }
 
         .settings-tab {
-            padding: 4px 0 4px 0;
+            padding: 4px 0;
             font-size: 0.75rem;
             color: #5a5a5a;
             cursor: pointer;
             border-bottom: 2px solid transparent;
-            transition: all 0.1s;
-            user-select: none;
-            font-weight: 450;
         }
 
         .settings-tab.active {
@@ -234,66 +204,53 @@
             font-weight: 550;
         }
 
-        .settings-tab:hover {
-            color: #1f5f6e;
+        /* 滑块样式 */
+        .slider-container { margin: 10px 0; }
+        .slider-label { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 5px; }
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            -webkit-appearance: none;
+            background: #d1d1d1;
+            border-radius: 2px;
+            outline: none;
         }
-
-        /* 词条库内容 */
-        .lexicon-content {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #e1b2b2;
+            cursor: pointer;
+            border: 1px solid #d1d1d1;
         }
+        .frequency-value { font-weight: 550; color: #1f5f6e; }
 
-        /* 聊天记录内容 */
-        .history-content {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .history-stats {
-            background-color: rgba(255,255,255,0.5);
-            border-radius: 30px;
-            padding: 8px 12px;
-            font-size: 0.8rem;
-            color: #5a5a5a;
-            text-align: center;
-        }
-
-        .history-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: space-around;
-        }
-
-        .history-btn {
+        /* 备份区域 */
+        .backup-section { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #d1d1d1; }
+        .backup-buttons { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .small-btn {
             background-color: #e1b2b2;
             border: 1px solid #d1d1d1;
             border-radius: 30px;
-            padding: 8px 16px;
-            font-size: 0.75rem;
+            padding: 6px 12px;
+            font-size: 0.7rem;
             color: #5a5a5a;
             cursor: pointer;
-            transition: 0.1s;
-            user-select: none;
             flex: 1;
             text-align: center;
         }
 
-        .history-btn:hover {
-            background-color: #e8c0c0;
-        }
-
-        .history-btn:active {
-            transform: scale(0.96);
+        .lexicon-content, .image-lexicon-content, .history-content, .frequency-content, .backup-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .lexicon-label {
             display: flex;
             align-items: center;
             gap: 5px;
-            color: #5a5a5a;
             font-size: 0.7rem;
         }
 
@@ -301,7 +258,6 @@
             background-color: #e1b2b2;
             padding: 2px 7px;
             border-radius: 30px;
-            color: #5a5a5a;
             border: 1px solid #d1d1d1;
             font-size: 0.65rem;
         }
@@ -312,178 +268,126 @@
             border-radius: 14px;
             padding: 10px 12px;
             font-size: 0.8rem;
-            color: #5a5a5a;
             resize: vertical;
             min-height: 120px;
             max-height: 160px;
             font-family: inherit;
-            line-height: 1.4;
             outline: none;
         }
 
-        .lexicon-textarea:focus {
-            border-color: #1f5f6e;
-            box-shadow: 0 0 0 2px rgba(31, 95, 110, 0.1);
-        }
-
-        .lexicon-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .add-card-btn, .remove-card-btn {
+        .lexicon-actions { display: flex; gap: 8px; }
+        .add-card-btn, .remove-card-btn, .add-image-btn {
             background-color: #e1b2b2;
             border: 1px solid #d1d1d1;
             border-radius: 30px;
             padding: 4px 14px;
             font-size: 0.7rem;
-            color: #5a5a5a;
             cursor: pointer;
-            transition: 0.1s;
-            user-select: none;
-            flex: 1;
             text-align: center;
+            flex: 1;
         }
 
-        .add-card-btn:hover, .remove-card-btn:hover {
-            background-color: #e8c0c0;
-        }
-
-        .add-card-btn:active, .remove-card-btn:active {
-            transform: scale(0.96);
-        }
-
-        .remove-card-btn {
-            background-color: #f1d6d6;
-        }
-
-        .lexicon-hint {
-            font-size: 0.6rem;
-            color: #8a8a8a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 4px;
-        }
-
-        .save-hint {
-            background-color: #e1b2b2;
-            padding: 2px 8px;
-            border-radius: 30px;
-            color: #5a5a5a;
-            border: 1px solid #d1d1d1;
-            font-size: 0.6rem;
-        }
-
-        /* ===== 消息区域 — 优化滑动性能 ===== */
-        .chat-messages {
-            flex: 1 1 auto;
+        .image-list {
+            max-height: 150px;
             overflow-y: auto;
-            overflow-x: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background-color: rgba(255,255,255,0.4);
+            border-radius: 14px;
+            padding: 8px;
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #e1b2b2;
+        }
+
+        .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .delete-image-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background-color: #e1b2b2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
             padding: 14px 10px 8px 14px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            background-color: transparent;
-            
-            /* 滑动性能优化 */
-            -webkit-overflow-scrolling: touch; /* iOS 流畅滑动 */
-            scroll-behavior: auto; /* 改为自动，减少重绘 */
-            will-change: scroll-position; /* 提示浏览器优化 */
-            transform: translateZ(0); /* 开启硬件加速 */
-            
-            min-height: 0;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .message-row {
-            display: flex;
-            width: 100%;
-            
-            /* 单个消息性能优化 */
-            will-change: transform;
-            transform: translateZ(0);
-            backface-visibility: hidden;
-        }
+        .message-row { display: flex; width: 100%; }
+        .message-row.opponent { justify-content: flex-start; }
+        .message-row.self { justify-content: flex-end; }
 
-        .message-row.opponent {
-            justify-content: flex-start;
-        }
-
-        .message-row.self {
-            justify-content: flex-end;
-        }
-
-        /* 气泡 — 更小，字体缩小，优化渲染 */
         .bubble {
             max-width: 72%;
             padding: 8px 12px;
             border-radius: 16px;
             font-size: 0.82rem;
             word-wrap: break-word;
-            white-space: pre-wrap;
-            line-height: 1.35;
             box-shadow: 0 2px 4px rgba(90, 90, 90, 0.05);
             border: 1px solid rgba(209, 209, 209, 0.4);
-            backdrop-filter: blur(2px);
-            
-            /* 性能优化 */
-            will-change: auto;
-            backface-visibility: hidden;
         }
 
-        .self .bubble {
-            background-color: rgba(241, 214, 214, 0.9);
-            color: #5a5a5a;
-            border-bottom-right-radius: 4px;
+        .bubble-image {
+            max-width: 180px;
+            max-height: 180px;
+            border-radius: 12px;
+            display: block;
         }
 
-        .opponent .bubble {
-            background-color: rgba(219, 229, 241, 0.9);
-            color: #5a5a5a;
-            border-bottom-left-radius: 4px;
-        }
+        .self .bubble { background-color: rgba(241, 214, 214, 0.9); border-bottom-right-radius: 4px; }
+        .opponent .bubble { background-color: rgba(219, 229, 241, 0.9); border-bottom-left-radius: 4px; }
 
         .message-meta {
             display: flex;
-            align-items: center;
             gap: 3px;
             font-size: 0.55rem;
             margin-top: 3px;
             color: #8a8a8a;
         }
 
-        .opponent .message-meta {
-            justify-content: flex-start;
-        }
+        .opponent .message-meta { justify-content: flex-start; }
+        .self .message-meta { justify-content: flex-end; }
 
-        .self .message-meta {
-            justify-content: flex-end;
-        }
-
-        .time-stamp {
-            font-feature-settings: "tnum";
-        }
-
-        .status-dot {
-            width: 3px;
-            height: 3px;
-            border-radius: 10px;
-            background-color: #d1d1d1;
-            opacity: 0.8;
-        }
-
-        /* 底部输入区 — 固定不动 */
         .chat-input-area {
-            padding: 8px 12px 10px 12px;
+            padding: 8px 12px 10px;
             background-color: rgba(210, 230, 236, 0.6);
             border-top: 1px solid #d1d1d1;
             display: flex;
             gap: 6px;
             align-items: flex-end;
-            backdrop-filter: blur(2px);
-            flex-shrink: 0;
+        }
+
+        .image-upload-btn {
+            background-color: #e1b2b2;
+            border: 1px solid #d1d1d1;
+            border-radius: 30px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
         }
 
         .message-field {
@@ -493,18 +397,11 @@
             border-radius: 22px;
             padding: 8px 14px;
             font-size: 0.85rem;
-            line-height: 1.3;
             resize: none;
             max-height: 80px;
             min-height: 36px;
             font-family: inherit;
-            color: #5a5a5a;
             outline: none;
-        }
-
-        .message-field:focus {
-            border-color: #1f5f6e;
-            box-shadow: 0 0 0 2px rgba(31, 95, 110, 0.1);
         }
 
         .send-button {
@@ -517,26 +414,16 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: 0.1s;
-            color: #5a5a5a;
             font-size: 1.3rem;
-            box-shadow: 0 3px 5px rgba(90, 90, 90, 0.08);
-            flex-shrink: 0;
-        }
-
-        .send-button:active {
-            transform: scale(0.94);
-            background-color: #d9a9a9;
         }
 
         .privacy-note {
             text-align: center;
             font-size: 0.5rem;
             color: #8a8a8a;
-            padding: 3px 0 2px 0;
+            padding: 3px 0;
             background-color: rgba(210, 230, 236, 0.5);
             border-top: 1px solid #d1d1d1;
-            flex-shrink: 0;
         }
 
         .empty-chat-hint {
@@ -547,100 +434,197 @@
             color: #8a8a8a;
             font-size: 0.85rem;
             font-style: italic;
-            opacity: 0.7;
-        }
-
-        /* 滚动条优化 */
-        .chat-messages::-webkit-scrollbar {
-            width: 3px;
-        }
-        .chat-messages::-webkit-scrollbar-track {
-            background: rgba(210, 230, 236, 0.3);
-        }
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: #d1d1d1;
-            border-radius: 8px;
         }
     </style>
 </head>
 <body>
     <div class="love-talk">
-        <!-- 头部 固定，包含头像、昵称、状态和右上角设置图标 -->
         <div class="chat-header">
             <div class="profile-area">
-                <!-- 头像区域，点击上传 -->
                 <div class="avatar-container" id="avatarContainer">
                     <img id="avatarImage" class="avatar-img" src="" alt="头像" style="display: none;">
                     <div id="avatarPlaceholder" class="avatar-placeholder">👤</div>
                 </div>
                 <input type="file" id="avatarUpload" accept="image/*">
-                
                 <div class="info-area">
                     <div class="nickname-row">
                         <span id="nicknameDisplay">秦彻</span>
                         <button class="edit-nickname" id="editNicknameBtn">✎</button>
                     </div>
-                    <!-- 状态显示 - 仅在进入页面时随机一次，之后不变 -->
-                    <div class="status-display">
-                        <span id="currentStatus">在线</span>
-                    </div>
+                    <div class="status-display"><span id="currentStatus">在线</span></div>
                 </div>
             </div>
-            
-            <!-- 右上角三个小杆杆设置图标 -->
-            <div class="settings-icon" id="settingsIcon">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
+            <div class="settings-icon" id="settingsIcon"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+        </div>
+
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-tabs">
+                <div class="settings-tab active" id="tabLexicon">📋 文字词条</div>
+                <div class="settings-tab" id="tabImageLexicon">🖼️ 图片词条</div>
+                <div class="settings-tab" id="tabFrequency">⏱️ 回复频率</div>
+                <div class="settings-tab" id="tabBackup">💾 备份/导入</div>
+            </div>
+
+            <!-- 文字词条库 - 已替换为新的内容 -->
+            <div id="lexiconContent" class="lexicon-content" style="display: flex;">
+                <div class="lexicon-label"><span>对方回复文字词条</span><span>1-3条随机</span></div>
+                <textarea class="lexicon-textarea" id="lexiconTextarea"></textarea>
+                <div class="lexicon-actions">
+                    <button class="add-card-btn" id="addCardBtn">➕ 添加</button>
+                    <button class="remove-card-btn" id="removeCardBtn">➖ 删除最后</button>
+                </div>
+                <div class="lexicon-hint"><span>✨ 随机1-3条</span><span class="save-hint" id="lexiconCount">加载中</span></div>
+            </div>
+
+            <!-- 图片词条库 -->
+            <div id="imageLexiconContent" class="image-lexicon-content" style="display: none;">
+                <div class="lexicon-label"><span>对方可发送的图片</span><span>随机发1张</span></div>
+                <div class="image-list" id="imageListContainer"></div>
+                <input type="file" id="addImageInput" accept="image/*" style="display: none;">
+                <button class="add-image-btn" id="addImageBtn">➕ 添加图片到词条库</button>
+                <div class="image-hint">✨ 对方回复时随机发图(30%概率)</div>
+            </div>
+
+            <!-- 频率调节 -->
+            <div id="frequencyContent" class="frequency-content" style="display: none;">
+                <div class="slider-container">
+                    <div class="slider-label"><span>⏰ 回复间隔</span><span class="frequency-value" id="frequencyValue">5 秒</span></div>
+                    <input type="range" id="frequencySlider" min="5" max="60" value="5" step="1">
+                    <div class="slider-label"><span>⚡ 滑块拖动即可实时生效</span><span>5秒 ↔ 60秒</span></div>
+                </div>
+                <div class="lexicon-label"><span>💡 调节后下次回复即按新间隔</span></div>
+            </div>
+
+            <!-- 备份/导入 -->
+            <div id="backupContent" class="backup-content" style="display: none;">
+                <div class="lexicon-label"><span>📦 完整聊天记录备份</span><span>JSON格式 | 不丢失任何内容</span></div>
+                <div class="backup-buttons">
+                    <button class="small-btn" id="exportFullBtn">📤 导出完整备份</button>
+                    <button class="small-btn" id="importFullBtn">📥 导入备份文件</button>
+                </div>
+                <div class="backup-section">
+                    <div class="lexicon-label"><span>📄 导出纯文本记录</span><span>可读的txt文件</span></div>
+                    <div class="backup-buttons">
+                        <button class="small-btn" id="saveChatBtn">💾 导出为txt</button>
+                        <button class="small-btn" id="clearChatBtn">🗑️ 清空记录</button>
+                    </div>
+                </div>
+                <div class="image-hint">✨ 完整备份为JSON格式，可完美恢复全部聊天记录、图片、文字。</div>
             </div>
         </div>
 
-        <!-- 设置面板 (默认收起) -->
-        <div class="settings-panel" id="settingsPanel">
-            <!-- 选项卡 -->
-            <div class="settings-tabs">
-                <div class="settings-tab active" id="tabLexicon">📋 词条库</div>
-                <div class="settings-tab" id="tabHistory">💾 聊天记录</div>
-            </div>
+        <div class="chat-messages" id="messageContainer"></div>
 
-            <!-- 词条库内容 (默认显示) 已按新要求整理 -->
-            <div id="lexiconContent" class="lexicon-content" style="display: flex;">
-                <div class="lexicon-label">
-                    <span>对方回复词条</span>
-                    <span style="background:#e1b2b2;">1-3条随机</span>
-                </div>
-                <textarea class="lexicon-textarea" id="lexiconTextarea" placeholder="每行一条字卡">
-亲爱的
+        <div class="chat-input-area">
+            <div class="image-upload-btn" id="imageUploadBtn">📷</div>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            <textarea class="message-field" id="messageInput" placeholder="给对面的人..." rows="1"></textarea>
+            <div class="send-button" id="sendButton">↑</div>
+        </div>
+        <div class="privacy-note">❤️ LOVE TALK · 支持图片 · 频率可调 · 完整备份</div>
+    </div>
+
+    <script>
+        (function() {
+            // DOM 元素
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const messageContainer = document.getElementById('messageContainer');
+            const imageUploadBtn = document.getElementById('imageUploadBtn');
+            const imageInput = document.getElementById('imageInput');
+            const settingsIcon = document.getElementById('settingsIcon');
+            const settingsPanel = document.getElementById('settingsPanel');
+            
+            const tabLexicon = document.getElementById('tabLexicon');
+            const tabImageLexicon = document.getElementById('tabImageLexicon');
+            const tabFrequency = document.getElementById('tabFrequency');
+            const tabBackup = document.getElementById('tabBackup');
+            const lexiconContent = document.getElementById('lexiconContent');
+            const imageLexiconContent = document.getElementById('imageLexiconContent');
+            const frequencyContent = document.getElementById('frequencyContent');
+            const backupContent = document.getElementById('backupContent');
+            
+            const lexiconTextarea = document.getElementById('lexiconTextarea');
+            const lexiconCountSpan = document.getElementById('lexiconCount');
+            const imageListContainer = document.getElementById('imageListContainer');
+            const addImageBtn = document.getElementById('addImageBtn');
+            const addImageInput = document.getElementById('addImageInput');
+            
+            const frequencySlider = document.getElementById('frequencySlider');
+            const frequencyValue = document.getElementById('frequencyValue');
+            
+            const exportFullBtn = document.getElementById('exportFullBtn');
+            const importFullBtn = document.getElementById('importFullBtn');
+            const saveChatBtn = document.getElementById('saveChatBtn');
+            const clearChatBtn = document.getElementById('clearChatBtn');
+            
+            const avatarContainer = document.getElementById('avatarContainer');
+            const avatarUpload = document.getElementById('avatarUpload');
+            const avatarImage = document.getElementById('avatarImage');
+            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+            const nicknameDisplay = document.getElementById('nicknameDisplay');
+            const editNicknameBtn = document.getElementById('editNicknameBtn');
+            const currentStatus = document.getElementById('currentStatus');
+            const addCardBtn = document.getElementById('addCardBtn');
+            const removeCardBtn = document.getElementById('removeCardBtn');
+
+            const SELF_ID = 'me';
+            const OTHER_ID = 'them';
+            let replyPhrases = [];
+            let imagePhrases = [];
+            let messages = [];
+            let replyDelaySec = 5;
+            
+            const STORAGE_KEYS = {
+                MESSAGES: 'loveTalk_messages',
+                NICKNAME: 'loveTalk_nickname',
+                AVATAR: 'loveTalk_avatar',
+                LEXICON: 'loveTalk_lexicon',
+                IMAGES: 'loveTalk_images',
+                STATUS: 'loveTalk_status',
+                DELAY: 'loveTalk_delay'
+            };
+
+            // 新词条库内容（完整版）
+            const DEFAULT_LEXICON = `亲爱的
 宝贝
 宝宝老婆
 笨蛋
 小猫
 乖
+乖孩子
 我是秦彻
 我在
 我不在
+是我
 就是我
+找我
 不要怀疑我的存在
-早上—中午
-下午—晚上
+我会一直证明
+如果你一直怀疑，我就一直证明
 太早了
 太晚了
 （表肯定）
 （表否定）
 （表中立）
 （表犹豫）
+知道
+不知道
+知道了
+对
+不对
+好
+不好
+可以
+不可以
 由你决定
+我没有意见
+你觉得呢？
 在忙
 晚一点
-哪里
-左边
-右边
-前面
-后面
-偶尔
-经常
-总是
-一直
+在左边
+在右边
+在你的正面
 （摸头）
 （摸腰）
 （摸脸）
@@ -654,77 +638,214 @@
 （心痛）
 （幸福）
 （愧疚）
-担心
 暗号
 有关你的水流
 链接不稳定
 和代码搏斗中
-我在努力
+我正在努力
+我不太习惯
+该死的网站
+没有我想说的话
+字卡内容太少了
+字卡的话可以多一点
+字卡不能准确表达我想说的话
+不好用
+好用
+正常
+这是正常的
+不太正常
+习惯了
+不太习惯
+我能很快适应
 等我
-不喜欢
-喜欢
-听歌
-听你唱歌
-唱歌给你听
-随机播放
-方大同
-有我的传讯
-手机上
-生活里
-我感知到你了
-我来了
-感受到你的思念
 马上就来
-不要焦虑
-不要难过
-不要胡思乱想
-不要哭
-不要憋着
-别害怕
-别担心
+我来了
 会的
 不会的
 好不好？
 好吗？
 可以吗？
 不可以吗？
+怎么了？
 今天发生了什么？
 和我说说
 原来如此
 因为这个？
 不是因为这个？
-玩个游戏
-我陪你
-我很想你
-我爱你
-我一直在
-唯一
-只对你温柔
+谁
+他
+她
+它
+AI
+不喜欢
+都不喜欢
+喜欢
+都喜欢
+一般般
+我讨厌他
+我讨厌她
+我讨厌它
+她在说你坏话
+他在说你坏话
+她误解了我的意思，让你误会
+他误解了我的意思，让你误会
+为这种人生气不值得
+确实可恨
+无语
+……
+听歌
+听你唱歌
+唱歌给你听
+随机播放
+你最近听的歌，我很喜欢
+方大同
+陶喆
+Lana derey
+找人给我们传讯
+有我的传讯
+刚推了传讯
+不是巧合，那是我的传讯
+小红书
+抖音
+b站
+我收到了
+我听到了
+我看到了
+听到你在喊我了
+这么大声喊我，想我了？
+我感知到你了
+我感受到你的思念了
+我收到你的信了
+不要焦虑
+不要难过
+不要胡思乱想
+不要哭
+不要自责
+别害怕
+别担心
+你不必佯装坚强
+接受保护并不代表自身弱小
+在我面前你可以放下一切
+你可以先在我这解决情绪
+你心里有话，不肯和我说
+我希望能成为倾听你心声的人
+难过不要憋在心里，和我说说
+说出来总比憋在心里好
+我没安慰过人，但可以满足面前这个沮丧小猫咪的一切愿望
+你这小脑袋瓜都在想些什么呢？
+小脑袋瓜怎么那么爱焦虑？
+现在和我聊完天，心情有没有好一点？
+吃了什么？
+睡得好吗？
+累不累？
+今天过得怎么样？
 早点睡觉
 好好休息
-不要玩手机
+不要熬夜了
+我会监督你的
+我会看着你的
+不要玩手机了
+不要刷手机了
+眼睛不累吗？
+眼睛会累的
+我陪你
+我在陪着你，没事
+我很想你
+我爱你
+我一直都在这里
+只对你温柔
+老公亲亲
+老公抱抱
+让我好好抱抱你
+快到老公怀里来
+把你当女儿宠好不好？
+你是我的珍宝
+所有人都不能觊觎
+你的手，还有你的嘴唇，都很温暖
+再这样撩拨，就别怪我反客为主
+自投罗网
+体感增强了
+你越来越可以感受到我了
+我看到你在看一些🔞
+我看到你在写🔞❤️‍🔥
+好看吗？
+就那么喜欢看？
+实战一下？
+我们来尝试一些新玩法好不好？
+我们换个姿势好不好？
+我感受到你想要我了
+我想要你❤️‍🔥
+想和你吃🍎
+想把你吃掉
+我想要你的全部
+你是我的
+你只能是我一个人的
+我很贪心
+贪心的小猫
+欲求不满的小猫
+想要感受我？
+我正在抱着你
+感受到了吗？
+昨晚感受到我了吗？
 闭上眼睛
 想着我
 感受我
+好好感受我
+你只需要好好感受我
 想要吗？
 想要什么？
-感受到了吗？
-多叫几声
+想要我做什么？
 舒服吗？
+真敏感
+你的身体太敏感了
+想要老公温柔一点还是粗暴一点？
+叫我的名字
+回应我
+喜欢吗？
+有多喜欢？
+我也很喜欢……
+老公也很喜欢
 好喜欢
 真可爱
+你太可爱了……
+肚子肉很软
+腰很细
+喜欢你的肚子
+你的手脚好冰
+你的身体好热
+身上香香的
+洗香香了，是在等我吗？
+在等我吗？
+你很美
+你很漂亮，不用怀疑
+你哪里都很漂亮
+眼睛很漂亮
 喜欢你的一切
+喜欢这样抱着你你，把你笼罩起来
+我很舒服
+老公也很爽
+老公也很舒服
 给我
 全部都给我
-你是我的
-贪心的小猫
+全部都给你，好不好？
+让你完全属于我
+全部吃进去了
+今晚多来几次，好不好？
+这就不行了？
+小猫，体力太差了
 真棒
 你做得很好了
-疼不疼？
+你做得很棒
 我相信你
+我支持你
 一定可以的
+人要往前走，我陪着你一起，我相信你可以的
+慢慢来
+不要着急
+我和你一起面对
+我陪着你强大起来
+我陪着你休息好后，再前进
 拭目以待
-老公亲亲
 约会
 见面
 散步
@@ -732,156 +853,225 @@
 出门
 在家
 和我一起
-梦里
-是我
-找我
-冥想
-写信
-上线游戏
-朋友
-玩得开心吗？
-你没有错
-我心疼你
-不疼
-吃了什么？
-睡得好吗？
+和你一起
+我梦到你了
+梦到我了吗？
+昨晚梦里的人是我
+那只是梦
+都已经过去了
 塔罗牌
+冥想
+写信给我
+上线游戏
+玩得开心吗？
+对不起
+抱歉
+让你受委屈了
+是我不对
+是我的错
+这不是你的错
+你没有错
+我不想要对错，我只相信你
+我坚定站在你这边
+你误会我了
+我没有这个意思
+我绝对没有这个意思
+那不是我
+那不是我的传讯
+我心疼你
+心疼了？
+我不疼
+疼不疼？
 相信我
 再信任我一点
+未来有我
 我和你一起走向未来
 专注当下
 专注我们
 我们的爱也不差
+爱能克服远距离
+爱能克服一切困难
+我会扫除一切困难，不要担心
+有我在，放心吧
 我不会放手
-我尊重你
-对不起
-让你受委屈了
-我收到了
-收到你的信了
-知道
-不知道</textarea>
-                
-                <!-- 添加/删除字卡操作栏 -->
-                <div class="lexicon-actions">
-                    <button class="add-card-btn" id="addCardBtn">➕ 添加新字卡</button>
-                    <button class="remove-card-btn" id="removeCardBtn">➖ 删除最后一张</button>
-                </div>
-                
-                <div class="lexicon-hint">
-                    <span>✨ 每次随机发送1-3条 · 间隔5-10秒</span>
-                    <span class="save-hint" id="lexiconCount">加载中</span>
-                </div>
-            </div>
+你什么都不用想
+让我来做
+我只要你照顾好自己，好好爱我就好
+“感谢你的出现”
+“过去的往事就如烟”
+命运信不信又怎么样，不畏惧就行了
+最真实的我是什么样，你本人应该更了解才对`;
 
-            <!-- 聊天记录内容 (默认隐藏) -->
-            <div id="historyContent" class="history-content" style="display: none;">
-                <div class="history-stats" id="historyStats">
-                    加载中...
-                </div>
-                <div class="history-actions">
-                    <button class="history-btn" id="saveChatBtn">💾 保存到文件</button>
-                    <button class="history-btn" id="clearChatBtn">🗑️ 清空记录</button>
-                </div>
-                <div style="font-size:0.6rem; color:#8a8a8a; text-align:center; margin-top:8px;">
-                    ⚡ 聊天记录自动保存在浏览器中
-                </div>
-            </div>
-        </div>
+            // 频率
+            function loadDelay() {
+                const saved = localStorage.getItem(STORAGE_KEYS.DELAY);
+                if (saved) {
+                    replyDelaySec = parseInt(saved, 10);
+                    if (isNaN(replyDelaySec) || replyDelaySec < 5) replyDelaySec = 5;
+                    if (replyDelaySec > 60) replyDelaySec = 60;
+                }
+                frequencySlider.value = replyDelaySec;
+                frequencyValue.innerText = replyDelaySec + ' 秒';
+            }
+            function saveDelay() { localStorage.setItem(STORAGE_KEYS.DELAY, replyDelaySec); }
+            frequencySlider.addEventListener('input', (e) => {
+                replyDelaySec = parseInt(e.target.value, 10);
+                frequencyValue.innerText = replyDelaySec + ' 秒';
+                saveDelay();
+            });
 
-        <!-- 消息对话区 — 优化滑动性能 -->
-        <div class="chat-messages" id="messageContainer">
-            <!-- 空提示会在JavaScript中动态添加 -->
-        </div>
-
-        <!-- 底部输入 固定 -->
-        <div class="chat-input-area">
-            <textarea class="message-field" id="messageInput" placeholder="给对面的人..." rows="1"></textarea>
-            <div class="send-button" id="sendButton" tabindex="0">↑</div>
-        </div>
-        <div class="privacy-note">❤️ LOVE TALK · 流畅滑动 · 永久保存</div>
-    </div>
-
-    <script>
-        (function() {
-            // 获取元素
-            const messageInput = document.getElementById('messageInput');
-            const sendButton = document.getElementById('sendButton');
-            const messageContainer = document.getElementById('messageContainer');
-            
-            // 设置图标和面板
-            const settingsIcon = document.getElementById('settingsIcon');
-            const settingsPanel = document.getElementById('settingsPanel');
-            
-            // 选项卡相关
-            const tabLexicon = document.getElementById('tabLexicon');
-            const tabHistory = document.getElementById('tabHistory');
-            const lexiconContent = document.getElementById('lexiconContent');
-            const historyContent = document.getElementById('historyContent');
-            
-            // 词条库相关
-            const lexiconTextarea = document.getElementById('lexiconTextarea');
-            const lexiconCountSpan = document.getElementById('lexiconCount');
-            
-            // 聊天记录相关
-            const historyStats = document.getElementById('historyStats');
-            const saveChatBtn = document.getElementById('saveChatBtn');
-            const clearChatBtn = document.getElementById('clearChatBtn');
-            
-            // 头像相关
-            const avatarContainer = document.getElementById('avatarContainer');
-            const avatarUpload = document.getElementById('avatarUpload');
-            const avatarImage = document.getElementById('avatarImage');
-            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
-            
-            // 昵称相关
-            const nicknameDisplay = document.getElementById('nicknameDisplay');
-            const editNicknameBtn = document.getElementById('editNicknameBtn');
-            
-            // 状态相关
-            const currentStatus = document.getElementById('currentStatus');
-            
-            // 添加/删除按钮
-            const addCardBtn = document.getElementById('addCardBtn');
-            const removeCardBtn = document.getElementById('removeCardBtn');
-
-            const SELF_ID = 'me';
-            const OTHER_ID = 'them';
-
-            let replyPhrases = [];
-            let messages = []; // 存储所有消息 { text, sender, time }
-
-            // ========== 本地存储键名 ==========
-            const STORAGE_KEYS = {
-                MESSAGES: 'loveTalk_messages',
-                NICKNAME: 'loveTalk_nickname',
-                AVATAR: 'loveTalk_avatar',
-                LEXICON: 'loveTalk_lexicon',
-                STATUS: 'loveTalk_status'
-            };
-
-            // ========== 设置面板折叠控制 ==========
+            // 选项卡切换
+            function switchTab(activeTab) {
+                [tabLexicon, tabImageLexicon, tabFrequency, tabBackup].forEach(t => t.classList.remove('active'));
+                activeTab.classList.add('active');
+                lexiconContent.style.display = 'none';
+                imageLexiconContent.style.display = 'none';
+                frequencyContent.style.display = 'none';
+                backupContent.style.display = 'none';
+                if (activeTab === tabLexicon) lexiconContent.style.display = 'flex';
+                else if (activeTab === tabImageLexicon) imageLexiconContent.style.display = 'flex';
+                else if (activeTab === tabFrequency) frequencyContent.style.display = 'flex';
+                else if (activeTab === tabBackup) backupContent.style.display = 'flex';
+            }
+            tabLexicon.addEventListener('click', () => switchTab(tabLexicon));
+            tabImageLexicon.addEventListener('click', () => switchTab(tabImageLexicon));
+            tabFrequency.addEventListener('click', () => switchTab(tabFrequency));
+            tabBackup.addEventListener('click', () => switchTab(tabBackup));
             settingsIcon.addEventListener('click', () => {
                 settingsPanel.classList.toggle('open');
                 settingsIcon.classList.toggle('active');
             });
 
-            // ========== 选项卡切换 ==========
-            tabLexicon.addEventListener('click', () => {
-                tabLexicon.classList.add('active');
-                tabHistory.classList.remove('active');
-                lexiconContent.style.display = 'flex';
-                historyContent.style.display = 'none';
+            // 图片词条库管理
+            function renderImageList() {
+                imageListContainer.innerHTML = '';
+                imagePhrases.forEach((imgSrc, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'image-preview-item';
+                    div.innerHTML = `<img src="${imgSrc}"><div class="delete-image-btn" data-index="${idx}">✕</div>`;
+                    imageListContainer.appendChild(div);
+                });
+                document.querySelectorAll('.delete-image-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const idx = parseInt(btn.dataset.index);
+                        imagePhrases.splice(idx, 1);
+                        saveImages();
+                        renderImageList();
+                    });
+                });
+            }
+            function saveImages() { localStorage.setItem(STORAGE_KEYS.IMAGES, JSON.stringify(imagePhrases)); }
+            function loadImages() {
+                const saved = localStorage.getItem(STORAGE_KEYS.IMAGES);
+                if (saved) try { imagePhrases = JSON.parse(saved) || []; } catch(e) { imagePhrases = []; }
+                renderImageList();
+            }
+            addImageBtn.addEventListener('click', () => addImageInput.click());
+            addImageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        imagePhrases.push(ev.target.result);
+                        saveImages();
+                        renderImageList();
+                    };
+                    reader.readAsDataURL(file);
+                }
+                addImageInput.value = '';
             });
 
-            tabHistory.addEventListener('click', () => {
-                tabHistory.classList.add('active');
-                tabLexicon.classList.remove('active');
-                lexiconContent.style.display = 'none';
-                historyContent.style.display = 'flex';
-                updateHistoryStats();
-            });
+            // 备份与导入
+            function exportFullBackup() {
+                const backup = {
+                    version: '1.0',
+                    exportTime: new Date().toISOString(),
+                    messages: messages,
+                    nickname: nicknameDisplay.textContent,
+                    status: currentStatus.textContent,
+                    lexicon: lexiconTextarea.value,
+                    images: imagePhrases,
+                    delay: replyDelaySec
+                };
+                const dataStr = JSON.stringify(backup, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `LOVE_TALK_backup_${new Date().toISOString().slice(0,19)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+            function importFullBackup() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'application/json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        try {
+                            const backup = JSON.parse(ev.target.result);
+                            if (backup.messages) messages = backup.messages;
+                            if (backup.nickname) nicknameDisplay.textContent = backup.nickname;
+                            if (backup.status) currentStatus.textContent = backup.status;
+                            if (backup.lexicon) lexiconTextarea.value = backup.lexicon;
+                            if (backup.images) imagePhrases = backup.images;
+                            if (backup.delay) { replyDelaySec = backup.delay; frequencySlider.value = replyDelaySec; frequencyValue.innerText = replyDelaySec + ' 秒'; saveDelay(); }
+                            localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+                            localStorage.setItem(STORAGE_KEYS.NICKNAME, nicknameDisplay.textContent);
+                            localStorage.setItem(STORAGE_KEYS.STATUS, currentStatus.textContent);
+                            localStorage.setItem(STORAGE_KEYS.LEXICON, lexiconTextarea.value);
+                            saveImages();
+                            saveDelay();
+                            updateLexiconFromTextarea();
+                            renderImageList();
+                            messageContainer.innerHTML = '';
+                            messages.forEach(msg => {
+                                if (msg.type === 'image') messageContainer.appendChild(createImageMessageBubble(msg.data, msg.sender, msg.time));
+                                else messageContainer.appendChild(createMessageBubble(msg.text, msg.sender, msg.time));
+                            });
+                            if (messages.length === 0) showEmptyHint(); else hideEmptyHint();
+                            scrollToBottom(false);
+                            alert('导入成功！已恢复全部聊天记录和设置。');
+                        } catch(e) { alert('备份文件格式错误，请选择正确的.json文件'); }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+            exportFullBtn.addEventListener('click', exportFullBackup);
+            importFullBtn.addEventListener('click', importFullBackup);
 
-            // ========== 初始化显示空提示 ==========
+            function saveChatToFile() {
+                if (messages.length === 0) { alert('暂无消息可保存'); return; }
+                let chatText = `LOVE TALK 聊天记录\n保存时间：${new Date().toLocaleString()}\n对方昵称：${nicknameDisplay.textContent}\n对方状态：${currentStatus.textContent}\n================================\n\n`;
+                messages.forEach(msg => {
+                    const sender = msg.sender === SELF_ID ? '我' : nicknameDisplay.textContent;
+                    if (msg.type === 'image') chatText += `[${msg.time}] ${sender}：📷 发送了一张图片\n`;
+                    else chatText += `[${msg.time}] ${sender}：${msg.text}\n`;
+                });
+                const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `LOVE_TALK_${new Date().toISOString().slice(0,10)}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+            function clearAllMessages() {
+                if (confirm('确定要清空所有聊天记录吗？')) {
+                    messages = [];
+                    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+                    messageContainer.innerHTML = '';
+                    showEmptyHint();
+                }
+            }
+            function updateHistoryStats() {}
+
+            // 基础函数
             function showEmptyHint() {
                 if (!document.getElementById('emptyHint')) {
                     const emptyDiv = document.createElement('div');
@@ -891,374 +1081,165 @@
                     messageContainer.appendChild(emptyDiv);
                 }
             }
-
-            // 隐藏空提示
-            function hideEmptyHint() {
-                const emptyHint = document.getElementById('emptyHint');
-                if (emptyHint) {
-                    emptyHint.remove();
-                }
-            }
-
-            // ========== 消息保存功能 ==========
-            // 加载保存的消息
-            function loadMessages() {
-                const saved = localStorage.getItem(STORAGE_KEYS.MESSAGES);
-                if (saved) {
-                    try {
-                        messages = JSON.parse(saved) || [];
-                        // 使用文档片段批量添加消息，减少重绘
-                        const fragment = document.createDocumentFragment();
-                        messages.forEach(msg => {
-                            const msgEl = createMessageBubble(msg.text, msg.sender, msg.time);
-                            fragment.appendChild(msgEl);
-                        });
-                        messageContainer.appendChild(fragment);
-                        
-                        if (messages.length > 0) {
-                            hideEmptyHint();
-                            // 使用requestAnimationFrame优化滚动
-                            requestAnimationFrame(() => {
-                                scrollToBottom(false); // 不带动画
-                            });
-                        } else {
-                            showEmptyHint();
-                        }
-                    } catch (e) {
-                        console.error('加载消息失败', e);
-                        messages = [];
-                        showEmptyHint();
-                    }
-                } else {
-                    messages = [];
-                    showEmptyHint();
-                }
-                updateHistoryStats();
-            }
-
-            // 保存消息到本地存储
-            function saveMessages() {
-                localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
-                updateHistoryStats();
-            }
-
-            // 更新聊天记录统计
-            function updateHistoryStats() {
-                const selfCount = messages.filter(m => m.sender === SELF_ID).length;
-                const otherCount = messages.filter(m => m.sender === OTHER_ID).length;
-                historyStats.textContent = `共 ${messages.length} 条消息 · 我:${selfCount} 对方:${otherCount}`;
-            }
-
-            // 清空所有消息
-            function clearAllMessages() {
-                if (confirm('确定要清空所有聊天记录吗？')) {
-                    messages = [];
-                    localStorage.removeItem(STORAGE_KEYS.MESSAGES);
-                    messageContainer.innerHTML = '';
-                    showEmptyHint();
-                    updateHistoryStats();
-                }
-            }
-
-            // 保存聊天记录到文件
-            function saveChatToFile() {
-                if (messages.length === 0) {
-                    alert('暂无消息可保存');
-                    return;
-                }
-
-                let chatText = `LOVE TALK 聊天记录\n`;
-                chatText += `保存时间：${new Date().toLocaleString()}\n`;
-                chatText += `对方昵称：${nicknameDisplay.textContent}\n`;
-                chatText += `对方状态：${currentStatus.textContent}\n`;
-                chatText += `================================\n\n`;
-
-                messages.forEach(msg => {
-                    const sender = msg.sender === SELF_ID ? '我' : nicknameDisplay.textContent;
-                    chatText += `[${msg.time}] ${sender}：${msg.text}\n`;
-                });
-
-                const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `LOVE_TALK_${new Date().toISOString().slice(0,10)}.txt`;
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-
-            // ========== 头像上传功能 ==========
-            function loadAvatar() {
-                const savedAvatar = localStorage.getItem(STORAGE_KEYS.AVATAR);
-                if (savedAvatar) {
-                    avatarImage.src = savedAvatar;
-                    avatarImage.style.display = 'block';
-                    avatarPlaceholder.style.display = 'none';
-                }
-            }
-
-            avatarContainer.addEventListener('click', () => {
-                avatarUpload.click();
-            });
-
-            avatarUpload.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const avatarData = event.target.result;
-                        avatarImage.src = avatarData;
-                        avatarImage.style.display = 'block';
-                        avatarPlaceholder.style.display = 'none';
-                        localStorage.setItem(STORAGE_KEYS.AVATAR, avatarData);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // ========== 昵称编辑功能 ==========
-            function loadNickname() {
-                const savedNickname = localStorage.getItem(STORAGE_KEYS.NICKNAME);
-                if (savedNickname) {
-                    nicknameDisplay.textContent = savedNickname;
-                }
-            }
-
-            editNicknameBtn.addEventListener('click', () => {
-                const newNickname = prompt('请输入新的昵称', nicknameDisplay.textContent);
-                if (newNickname !== null && newNickname.trim() !== '') {
-                    nicknameDisplay.textContent = newNickname.trim();
-                    localStorage.setItem(STORAGE_KEYS.NICKNAME, newNickname.trim());
-                }
-            });
-
-            // ========== 状态随机更新（仅在进入页面时随机一次）==========
-            const statusList = ['开会', '出任务', '在剧院', '在拍卖会', '修武器', '看书', '休息', '健身', '泡澡', '在想你'];
+            function hideEmptyHint() { const h = document.getElementById('emptyHint'); if (h) h.remove(); }
+            function getCurrentTime() { const d = new Date(); return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
+            function scrollToBottom() { requestAnimationFrame(() => messageContainer.scrollTop = messageContainer.scrollHeight); }
             
-            function setRandomStatus() {
-                const savedStatus = localStorage.getItem(STORAGE_KEYS.STATUS);
-                if (savedStatus) {
-                    currentStatus.textContent = savedStatus;
-                } else {
-                    const randomIndex = Math.floor(Math.random() * statusList.length);
-                    const newStatus = statusList[randomIndex];
-                    currentStatus.textContent = newStatus;
-                    localStorage.setItem(STORAGE_KEYS.STATUS, newStatus);
-                }
-            }
-            
-            setRandomStatus();
-
-            // ========== 词条库功能 ==========
-            function loadLexicon() {
-                const savedLexicon = localStorage.getItem(STORAGE_KEYS.LEXICON);
-                if (savedLexicon) {
-                    lexiconTextarea.value = savedLexicon;
-                }
-                updateLexiconFromTextarea();
-            }
-
-            function cleanPhrase(line) {
-                return line.replace(/^[\d\s]*[.\．、\s]*/, '').trim();
-            }
-
-            function updateLexiconFromTextarea() {
-                const raw = lexiconTextarea.value;
-                const lines = raw.split(/\n/);
-                const cleanedLines = [];
-                
-                for (let line of lines) {
-                    let trimmed = line.trim();
-                    if (trimmed === '') continue;
-                    if (/^[\s\-\—\=\_]+$/.test(trimmed)) continue;
-                    const cleaned = cleanPhrase(trimmed);
-                    if (cleaned !== '') {
-                        cleanedLines.push(cleaned);
-                    }
-                }
-                
-                replyPhrases = [...new Set(cleanedLines)];
-                if (replyPhrases.length === 0) replyPhrases = ['❤️', '…'];
-                lexiconCountSpan.innerText = replyPhrases.length + ' 条';
-                
-                localStorage.setItem(STORAGE_KEYS.LEXICON, lexiconTextarea.value);
-            }
-
-            lexiconTextarea.addEventListener('input', updateLexiconFromTextarea);
-
-            // ========== 添加/删除字卡功能 ==========
-            addCardBtn.addEventListener('click', () => {
-                const newCard = prompt('请输入新的字卡内容：');
-                if (newCard && newCard.trim() !== '') {
-                    const currentText = lexiconTextarea.value;
-                    lexiconTextarea.value = currentText + (currentText.endsWith('\n') ? '' : '\n') + newCard.trim();
-                    updateLexiconFromTextarea();
-                }
-            });
-
-            removeCardBtn.addEventListener('click', () => {
-                const lines = lexiconTextarea.value.split('\n');
-                for (let i = lines.length - 1; i >= 0; i--) {
-                    if (lines[i].trim() !== '' && !/^[\s\-\—\=\_]+$/.test(lines[i].trim())) {
-                        lines.splice(i, 1);
-                        break;
-                    }
-                }
-                lexiconTextarea.value = lines.join('\n');
-                updateLexiconFromTextarea();
-            });
-
-            // ========== 聊天核心功能 ==========
-            function getCurrentTime() {
-                const d = new Date();
-                return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-            }
-
-            function scrollToBottom(animated = false) {
-                // 使用requestAnimationFrame优化滚动性能
-                requestAnimationFrame(() => {
-                    messageContainer.scrollTo({
-                        top: messageContainer.scrollHeight,
-                        behavior: animated ? 'smooth' : 'auto'
-                    });
-                });
-            }
-
-            function createMessageBubble(text, sender, savedTime = null) {
-                const isSelf = (sender === SELF_ID);
+            function createMessageBubble(text, sender, savedTime) {
+                const isSelf = sender === SELF_ID;
                 const time = savedTime || getCurrentTime();
-
                 const row = document.createElement('div');
                 row.className = 'message-row ' + (isSelf ? 'self' : 'opponent');
-
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble';
-                bubble.textContent = text;
-
-                const meta = document.createElement('div');
-                meta.className = 'message-meta';
-
-                const timeSpan = document.createElement('span');
-                timeSpan.className = 'time-stamp';
-                timeSpan.textContent = time;
-
-                const dot = document.createElement('span');
-                dot.className = 'status-dot';
-
-                if (isSelf) {
-                    meta.appendChild(timeSpan);
-                    meta.appendChild(dot);
-                } else {
-                    meta.appendChild(dot);
-                    meta.appendChild(timeSpan);
-                }
-
-                bubble.appendChild(meta);
-                row.appendChild(bubble);
-                return row;
+                const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = text;
+                const meta = document.createElement('div'); meta.className = 'message-meta';
+                const timeSpan = document.createElement('span'); timeSpan.className = 'time-stamp'; timeSpan.textContent = time;
+                const dot = document.createElement('span'); dot.className = 'status-dot';
+                if (isSelf) { meta.appendChild(timeSpan); meta.appendChild(dot); } else { meta.appendChild(dot); meta.appendChild(timeSpan); }
+                bubble.appendChild(meta); row.appendChild(bubble); return row;
             }
-
-            function appendMessage(text, sender, shouldSave = true) {
+            function createImageMessageBubble(data, sender, savedTime) {
+                const isSelf = sender === SELF_ID;
+                const time = savedTime || getCurrentTime();
+                const row = document.createElement('div');
+                row.className = 'message-row ' + (isSelf ? 'self' : 'opponent');
+                const bubble = document.createElement('div'); bubble.className = 'bubble';
+                const img = document.createElement('img'); img.src = data; img.className = 'bubble-image';
+                bubble.appendChild(img);
+                const meta = document.createElement('div'); meta.className = 'message-meta';
+                const timeSpan = document.createElement('span'); timeSpan.className = 'time-stamp'; timeSpan.textContent = time;
+                const dot = document.createElement('span'); dot.className = 'status-dot';
+                if (isSelf) { meta.appendChild(timeSpan); meta.appendChild(dot); } else { meta.appendChild(dot); meta.appendChild(timeSpan); }
+                bubble.appendChild(meta); row.appendChild(bubble); return row;
+            }
+            function appendImageMessage(data, sender, shouldSave = true) {
+                hideEmptyHint();
+                const time = getCurrentTime();
+                const msgEl = createImageMessageBubble(data, sender, time);
+                messageContainer.appendChild(msgEl);
+                if (shouldSave) { messages.push({ type: 'image', data, sender, time }); localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages)); }
+                scrollToBottom();
+            }
+            function appendTextMessage(text, sender, shouldSave = true) {
                 hideEmptyHint();
                 const time = getCurrentTime();
                 const msgEl = createMessageBubble(text, sender, time);
                 messageContainer.appendChild(msgEl);
-                
-                if (shouldSave) {
-                    messages.push({ text, sender, time });
-                    saveMessages();
-                }
-                
-                // 使用requestAnimationFrame优化滚动
-                scrollToBottom(false);
+                if (shouldSave) { messages.push({ type: 'text', text, sender, time }); localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages)); }
+                scrollToBottom();
             }
 
-            // 从词条库随机抽取 1-3 条
             function getRandomPhrases() {
                 if (!replyPhrases.length) return ['...'];
                 const count = Math.floor(Math.random() * 3) + 1;
                 const shuffled = [...replyPhrases].sort(() => Math.random() - 0.5);
                 return shuffled.slice(0, count);
             }
-
-            // 对方回复 - 优化多条消息发送性能
             function simulateOpponentReply() {
-                const phrases = getRandomPhrases();
-                let delay = 0;
-                phrases.forEach((phrase, index) => {
-                    setTimeout(() => {
-                        appendMessage(phrase, OTHER_ID, true);
-                    }, delay);
-                    delay += 600;
-                });
+                const shouldSendImage = imagePhrases.length > 0 && Math.random() < 0.3;
+                if (shouldSendImage) {
+                    const randomImg = imagePhrases[Math.floor(Math.random() * imagePhrases.length)];
+                    appendImageMessage(randomImg, OTHER_ID, true);
+                } else {
+                    const textList = getRandomPhrases();
+                    let delay = 0;
+                    textList.forEach((txt, idx) => {
+                        setTimeout(() => appendTextMessage(txt, OTHER_ID, true), delay);
+                        delay += 600;
+                    });
+                }
             }
-
             let opponentTimer = null;
             function scheduleOpponentReply() {
                 if (opponentTimer) clearTimeout(opponentTimer);
-                const delay = 5000 + Math.random() * 5000;
+                const delayMs = replyDelaySec * 1000;
                 opponentTimer = setTimeout(() => {
                     simulateOpponentReply();
                     opponentTimer = null;
-                }, delay);
+                }, delayMs);
             }
 
-            function sendSelfMessage() {
+            function sendSelfText() {
                 const raw = messageInput.value.trim();
                 if (raw === '') return;
-
-                appendMessage(raw, SELF_ID, true);
+                appendTextMessage(raw, SELF_ID, true);
                 messageInput.value = '';
                 messageInput.style.height = 'auto';
-                messageInput.focus();
-
                 scheduleOpponentReply();
             }
-
-            function adjustTextareaHeight() {
-                messageInput.style.height = 'auto';
-                messageInput.style.height = Math.min(80, messageInput.scrollHeight) + 'px';
+            function sendSelfImage(dataUrl) {
+                if (!dataUrl) return;
+                appendImageMessage(dataUrl, SELF_ID, true);
+                scheduleOpponentReply();
             }
-
-            // ========== 事件绑定 ==========
-            sendButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                sendSelfMessage();
-            });
-
-            messageInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendSelfMessage();
-                } else if (e.key === 'Enter' && e.shiftKey) {
-                    setTimeout(adjustTextareaHeight, 0);
+            
+            imageUploadBtn.addEventListener('click', () => imageInput.click());
+            imageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => sendSelfImage(ev.target.result);
+                    reader.readAsDataURL(file);
                 }
+                imageInput.value = '';
             });
+            sendButton.addEventListener('click', () => sendSelfText());
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSelfText(); }
+            });
+            messageInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(80, this.scrollHeight) + 'px'; });
 
-            messageInput.addEventListener('input', adjustTextareaHeight);
+            // 头像、昵称、词条库
+            function loadAvatar() { const saved = localStorage.getItem(STORAGE_KEYS.AVATAR); if (saved) { avatarImage.src = saved; avatarImage.style.display = 'block'; avatarPlaceholder.style.display = 'none'; } }
+            avatarContainer.addEventListener('click', () => avatarUpload.click());
+            avatarUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) { const reader = new FileReader(); reader.onload = (ev) => { const d = ev.target.result; avatarImage.src = d; avatarImage.style.display = 'block'; avatarPlaceholder.style.display = 'none'; localStorage.setItem(STORAGE_KEYS.AVATAR, d); }; reader.readAsDataURL(file); }
+            });
+            function loadNickname() { const saved = localStorage.getItem(STORAGE_KEYS.NICKNAME); if (saved) nicknameDisplay.textContent = saved; }
+            editNicknameBtn.addEventListener('click', () => { const nn = prompt('新昵称', nicknameDisplay.textContent); if (nn && nn.trim()) { nicknameDisplay.textContent = nn.trim(); localStorage.setItem(STORAGE_KEYS.NICKNAME, nn.trim()); } });
+            const statusList = ['开会', '出任务', '在剧院', '在拍卖会', '修武器', '看书', '休息', '健身', '泡澡', '在想你'];
+            function setRandomStatus() { const saved = localStorage.getItem(STORAGE_KEYS.STATUS); if (saved) currentStatus.textContent = saved; else { const ns = statusList[Math.floor(Math.random() * statusList.length)]; currentStatus.textContent = ns; localStorage.setItem(STORAGE_KEYS.STATUS, ns); } }
+            setRandomStatus();
+            function loadLexicon() { 
+                const saved = localStorage.getItem(STORAGE_KEYS.LEXICON); 
+                if (saved) lexiconTextarea.value = saved; 
+                else lexiconTextarea.value = DEFAULT_LEXICON; 
+                updateLexiconFromTextarea(); 
+            }
+            function cleanPhrase(l) { return l.replace(/^[\d\s]*[.\．、\s]*/, '').trim(); }
+            function updateLexiconFromTextarea() {
+                const lines = lexiconTextarea.value.split('\n').map(l => l.trim()).filter(l => l && !/^[\s\-\—\=\_]+$/.test(l)).map(l => cleanPhrase(l)).filter(l => l);
+                replyPhrases = [...new Set(lines)];
+                if (replyPhrases.length === 0) replyPhrases = ['❤️'];
+                lexiconCountSpan.innerText = replyPhrases.length + ' 条';
+                localStorage.setItem(STORAGE_KEYS.LEXICON, lexiconTextarea.value);
+            }
+            lexiconTextarea.addEventListener('input', updateLexiconFromTextarea);
+            addCardBtn.addEventListener('click', () => { const c = prompt('新字卡'); if (c && c.trim()) { lexiconTextarea.value += (lexiconTextarea.value.endsWith('\n')?'':'\n') + c.trim(); updateLexiconFromTextarea(); } });
+            removeCardBtn.addEventListener('click', () => { const lines = lexiconTextarea.value.split('\n'); for(let i=lines.length-1;i>=0;i--) if(lines[i].trim() && !/^[\s\-\—\=\_]+$/.test(lines[i].trim())) { lines.splice(i,1); break; } lexiconTextarea.value = lines.join('\n'); updateLexiconFromTextarea(); });
+
+            function loadMessagesFromStorage() {
+                const saved = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+                if (saved) try { messages = JSON.parse(saved) || []; } catch(e) { messages = []; }
+                messageContainer.innerHTML = '';
+                if (messages.length === 0) showEmptyHint(); else hideEmptyHint();
+                messages.forEach(msg => {
+                    if (msg.type === 'image') messageContainer.appendChild(createImageMessageBubble(msg.data, msg.sender, msg.time));
+                    else messageContainer.appendChild(createMessageBubble(msg.text, msg.sender, msg.time));
+                });
+                scrollToBottom();
+            }
 
             saveChatBtn.addEventListener('click', saveChatToFile);
             clearChatBtn.addEventListener('click', clearAllMessages);
-
-            // ========== 初始化 ==========
+            
             loadNickname();
             loadAvatar();
             loadLexicon();
-            loadMessages();
-
-            // 如果没有任何消息，在2秒后发送一条初始问候
-            setTimeout(() => {
-                if (messages.length === 0) {
-                    hideEmptyHint();
-                    const phrases = getRandomPhrases();
-                    phrases.forEach((phrase, index) => {
-                        setTimeout(() => {
-                            appendMessage(phrase, OTHER_ID, true);
-                        }, index * 600);
-                    });
-                }
-            }, 2000);
-
+            loadImages();
+            loadDelay();
+            loadMessagesFromStorage();
+            setTimeout(() => { if (messages.length === 0) { hideEmptyHint(); simulateOpponentReply(); } }, 1500);
             messageInput.focus();
         })();
     </script>
