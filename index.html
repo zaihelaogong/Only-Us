@@ -1,1247 +1,1315 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LOVE TALK · 私语</title>
-    <style>
-        /* LOVE TALK 专属色系 — 更紧凑尺寸，独立滑动区，头像居中，支持多条发送 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #F0F2F0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #5a5a5a;
-            padding: 6px;
-        }
-
-        .love-talk {
-            max-width: 380px;
-            width: 100%;
-            height: 100%;
-            max-height: 720px;
-            background-color: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(3px);
-            border-radius: 22px;
-            box-shadow: 0 12px 28px -8px rgba(95, 95, 95, 0.2);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid rgba(209, 209, 209, 0.5);
-        }
-
-        /* 头部 */
-        .chat-header {
-            padding: 8px 14px 6px 14px;
-            background-color: rgba(210, 230, 236, 0.85);
-            border-bottom: 1px solid #d1d1d1;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: nowrap;
-            gap: 6px;
-            backdrop-filter: blur(2px);
-            flex-shrink: 0;
-        }
-
-        .profile-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-            justify-content: flex-start;
-            margin-left: 30px;
-        }
-
-        .avatar-container {
-            position: relative;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #e1b2b2;
-            border: 2px solid white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            overflow: hidden;
-            flex-shrink: 0;
-            cursor: pointer;
-        }
-
-        .avatar-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .avatar-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #dbe5f1;
-            color: #1f5f6e;
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
-
-        #avatarUpload { display: none; }
-
-        .info-area {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        .nickname-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        #nicknameDisplay {
-            font-size: 1rem;
-            font-weight: 550;
-            color: #1f5f6e;
-            white-space: nowrap;
-            max-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .edit-nickname {
-            background: none;
-            border: none;
-            color: #8a8a8a;
-            font-size: 0.7rem;
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 10px;
-        }
-
-        .status-display {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.7rem;
-            margin-top: 2px;
-        }
-
-        #currentStatus {
-            background-color: #e1b2b2;
-            padding: 2px 8px;
-            border-radius: 30px;
-            color: #5a5a5a;
-            border: 1px solid #d1d1d1;
-            white-space: nowrap;
-            max-width: 100px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .settings-icon {
-            width: 36px;
-            height: 36px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            cursor: pointer;
-            border-radius: 30px;
-            transition: background-color 0.1s;
-            flex-shrink: 0;
-        }
-
-        .settings-icon:hover { background-color: rgba(225, 178, 178, 0.5); }
-        .settings-icon.active { background-color: rgba(225, 178, 178, 0.8); }
-        .bar { width: 20px; height: 2px; background-color: #5a5a5a; border-radius: 2px; }
-
-        .settings-panel {
-            background-color: rgba(210, 230, 236, 0.95);
-            border-bottom: 1px solid #d1d1d1;
-            padding: 0 14px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.25s ease-out, padding 0.2s ease;
-            backdrop-filter: blur(2px);
-            flex-shrink: 0;
-        }
-
-        .settings-panel.open {
-            max-height: 550px;
-            padding: 14px 14px 16px 14px;
-        }
-
-        .settings-tabs {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #d1d1d1;
-            padding-bottom: 6px;
-        }
-
-        .settings-tab {
-            padding: 4px 0;
-            font-size: 0.75rem;
-            color: #5a5a5a;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-
-        .settings-tab.active {
-            color: #1f5f6e;
-            border-bottom: 2px solid #1f5f6e;
-            font-weight: 550;
-        }
-
-        /* 滑块样式 */
-        .slider-container { margin: 10px 0; }
-        .slider-label { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 5px; }
-        input[type="range"] {
-            width: 100%;
-            height: 4px;
-            -webkit-appearance: none;
-            background: #d1d1d1;
-            border-radius: 2px;
-            outline: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #e1b2b2;
-            cursor: pointer;
-            border: 1px solid #d1d1d1;
-        }
-        .frequency-value { font-weight: 550; color: #1f5f6e; }
-
-        /* 备份区域 */
-        .backup-section { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #d1d1d1; }
-        .backup-buttons { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-        .small-btn {
-            background-color: #e1b2b2;
-            border: 1px solid #d1d1d1;
-            border-radius: 30px;
-            padding: 6px 12px;
-            font-size: 0.7rem;
-            color: #5a5a5a;
-            cursor: pointer;
-            flex: 1;
-            text-align: center;
-        }
-
-        .lexicon-content, .image-lexicon-content, .history-content, .frequency-content, .backup-content {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .lexicon-label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.7rem;
-        }
-
-        .lexicon-label span {
-            background-color: #e1b2b2;
-            padding: 2px 7px;
-            border-radius: 30px;
-            border: 1px solid #d1d1d1;
-            font-size: 0.65rem;
-        }
-
-        .lexicon-textarea {
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 1px solid #d1d1d1;
-            border-radius: 14px;
-            padding: 10px 12px;
-            font-size: 0.8rem;
-            resize: vertical;
-            min-height: 120px;
-            max-height: 160px;
-            font-family: inherit;
-            outline: none;
-        }
-
-        .lexicon-actions { display: flex; gap: 8px; }
-        .add-card-btn, .remove-card-btn, .add-image-btn {
-            background-color: #e1b2b2;
-            border: 1px solid #d1d1d1;
-            border-radius: 30px;
-            padding: 4px 14px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            text-align: center;
-            flex: 1;
-        }
-
-        .image-list {
-            max-height: 150px;
-            overflow-y: auto;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            background-color: rgba(255,255,255,0.4);
-            border-radius: 14px;
-            padding: 8px;
-        }
-
-        .image-preview-item {
-            position: relative;
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid #e1b2b2;
-        }
-
-        .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
-        .delete-image-btn {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            width: 18px;
-            height: 18px;
-            background-color: #e1b2b2;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            cursor: pointer;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 14px 10px 8px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .message-row { display: flex; width: 100%; }
-        .message-row.opponent { justify-content: flex-start; }
-        .message-row.self { justify-content: flex-end; }
-
-        .bubble {
-            max-width: 72%;
-            padding: 8px 12px;
-            border-radius: 16px;
-            font-size: 0.82rem;
-            word-wrap: break-word;
-            box-shadow: 0 2px 4px rgba(90, 90, 90, 0.05);
-            border: 1px solid rgba(209, 209, 209, 0.4);
-        }
-
-        .bubble-image {
-            max-width: 180px;
-            max-height: 180px;
-            border-radius: 12px;
-            display: block;
-        }
-
-        .self .bubble { background-color: rgba(241, 214, 214, 0.9); border-bottom-right-radius: 4px; }
-        .opponent .bubble { background-color: rgba(219, 229, 241, 0.9); border-bottom-left-radius: 4px; }
-
-        .message-meta {
-            display: flex;
-            gap: 3px;
-            font-size: 0.55rem;
-            margin-top: 3px;
-            color: #8a8a8a;
-        }
-
-        .opponent .message-meta { justify-content: flex-start; }
-        .self .message-meta { justify-content: flex-end; }
-
-        .chat-input-area {
-            padding: 8px 12px 10px;
-            background-color: rgba(210, 230, 236, 0.6);
-            border-top: 1px solid #d1d1d1;
-            display: flex;
-            gap: 6px;
-            align-items: flex-end;
-        }
-
-        .image-upload-btn {
-            background-color: #e1b2b2;
-            border: 1px solid #d1d1d1;
-            border-radius: 30px;
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-
-        .message-field {
-            flex: 1;
-            border: 1px solid #d1d1d1;
-            background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 22px;
-            padding: 8px 14px;
-            font-size: 0.85rem;
-            resize: none;
-            max-height: 80px;
-            min-height: 36px;
-            font-family: inherit;
-            outline: none;
-        }
-
-        .send-button {
-            background-color: #e1b2b2;
-            border: 1px solid #d1d1d1;
-            border-radius: 30px;
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.3rem;
-        }
-
-        .privacy-note {
-            text-align: center;
-            font-size: 0.5rem;
-            color: #8a8a8a;
-            padding: 3px 0;
-            background-color: rgba(210, 230, 236, 0.5);
-            border-top: 1px solid #d1d1d1;
-        }
-
-        .empty-chat-hint {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            color: #8a8a8a;
-            font-size: 0.85rem;
-            font-style: italic;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LOVE TALK · 私语（长按直接引用）</title>
+<style>
+/* 完整样式（与上一版完全一致） */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background-color: #F0F2F0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; color: #5a5a5a; padding: 6px; }
+.love-talk { max-width: 440px; width: 100%; height: 100%; max-height: 720px; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(3px); border-radius: 22px; box-shadow: 0 12px 28px -8px rgba(95, 95, 95, 0.2); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(209, 209, 209, 0.5); }
+.chat-header { padding: 8px 16px; background-color: rgba(210, 230, 236, 0.85); border-bottom: 1px solid #d1d1d1; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 12px; }
+.other-avatar-area { display: flex; align-items: center; gap: 8px; }
+.other-avatar-container { position: relative; width: 40px; height: 40px; border-radius: 10px; background-color: #e1b2b2; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; flex-shrink: 0; }
+.other-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.other-avatar-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #dbe5f1; color: #1f5f6e; font-size: 1.2rem; font-weight: 500; }
+.other-nickname { font-size: 0.9rem; font-weight: 550; color: #1f5f6e; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; background: none; border: none; }
+.settings-heart { font-size: 1.8rem; color: #e1b2b2; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.1s; }
+.settings-heart:hover { background-color: rgba(225, 178, 178, 0.5); }
+.settings-heart.active { background-color: rgba(225, 178, 178, 0.8); }
+.my-profile { display: flex; align-items: center; gap: 8px; }
+.my-avatar-container { position: relative; width: 40px; height: 40px; border-radius: 10px; background-color: #e1b2b2; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; flex-shrink: 0; }
+.my-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.my-avatar-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #dbe5f1; color: #1f5f6e; font-size: 1.2rem; font-weight: 500; }
+.my-nickname { font-size: 0.9rem; font-weight: 550; color: #1f5f6e; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; background: none; border: none; }
+#otherAvatarUpload, #myAvatarUpload { display: none; }
+.settings-panel { background-color: rgba(210, 230, 236, 0.95); border-bottom: 1px solid #d1d1d1; padding: 0 14px; max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out, padding 0.2s ease; backdrop-filter: blur(2px); flex-shrink: 0; }
+.settings-panel.open { max-height: 550px; padding: 14px 14px 16px 14px; }
+.settings-tabs { display: flex; gap: 16px; margin-bottom: 12px; border-bottom: 1px solid #d1d1d1; padding-bottom: 6px; }
+.settings-tab { padding: 4px 0; font-size: 0.75rem; color: #5a5a5a; cursor: pointer; border-bottom: 2px solid transparent; }
+.settings-tab.active { color: #1f5f6e; border-bottom: 2px solid #1f5f6e; font-weight: 550; }
+.slider-container { margin: 10px 0; }
+.slider-label { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 5px; }
+input[type="range"] { width: 100%; height: 4px; -webkit-appearance: none; background: #d1d1d1; border-radius: 2px; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #e1b2b2; cursor: pointer; border: 1px solid #d1d1d1; }
+.frequency-value { font-weight: 550; color: #1f5f6e; }
+.backup-section { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #d1d1d1; }
+.backup-buttons { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.small-btn { background-color: #e1b2b2; border: 1px solid #d1d1d1; border-radius: 30px; padding: 6px 12px; font-size: 0.7rem; color: #5a5a5a; cursor: pointer; flex: 1; text-align: center; }
+.lexicon-content, .image-lexicon-content, .frequency-content, .backup-content { display: flex; flex-direction: column; gap: 8px; }
+.lexicon-label { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; }
+.lexicon-label span { background-color: #e1b2b2; padding: 2px 7px; border-radius: 30px; border: 1px solid #d1d1d1; font-size: 0.65rem; }
+.lexicon-textarea { background-color: rgba(255, 255, 255, 0.7); border: 1px solid #d1d1d1; border-radius: 14px; padding: 10px 12px; font-size: 0.8rem; resize: vertical; min-height: 120px; max-height: 160px; font-family: inherit; outline: none; }
+.lexicon-actions { display: flex; gap: 8px; }
+.add-card-btn, .remove-card-btn, .add-image-btn { background-color: #e1b2b2; border: 1px solid #d1d1d1; border-radius: 30px; padding: 4px 14px; font-size: 0.7rem; cursor: pointer; text-align: center; flex: 1; }
+.image-list { max-height: 150px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 8px; background-color: rgba(255,255,255,0.4); border-radius: 14px; padding: 8px; }
+.image-preview-item { position: relative; width: 60px; height: 60px; border-radius: 10px; overflow: hidden; border: 2px solid #e1b2b2; }
+.image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+.delete-image-btn { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; background-color: #e1b2b2; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
+.emoji-panel { position: absolute; bottom: 70px; left: 10px; right: 10px; background-color: rgba(240, 242, 240, 0.98); border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); backdrop-filter: blur(8px); padding: 12px; max-height: 240px; overflow-y: auto; z-index: 100; display: flex; flex-wrap: wrap; gap: 10px; border: 1px solid #d1d1d1; }
+.emoji-item { position: relative; width: 60px; height: 60px; border-radius: 12px; overflow: hidden; background-color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; border: 1px solid #e1b2b2; }
+.emoji-item img { width: 100%; height: 100%; object-fit: cover; }
+.delete-emoji { position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; background-color: #e1b2b2; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; cursor: pointer; border: 1px solid white; }
+.add-emoji-btn { width: 60px; height: 60px; border-radius: 12px; background-color: #e1b2b2; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #5a5a5a; cursor: pointer; border: 1px solid #d1d1d1; }
+.emoji-panel.hidden { display: none; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 14px 16px 8px 16px; display: flex; flex-direction: column; gap: 12px; }
+.date-separator { display: flex; justify-content: center; margin: 8px 0; }
+.date-separator span { background-color: rgba(0,0,0,0.1); backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #5a5a5a; }
+.message-row { display: flex; width: 100%; align-items: flex-start; gap: 12px; position: relative; }
+.message-row.opponent { justify-content: flex-start; }
+.message-row.self { justify-content: flex-end; }
+.message-avatar { width: 36px; height: 36px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background-color: #e1b2b2; border: 1px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.message-row.self .message-avatar { order: 2; margin-left: 0; }
+.message-row.opponent .message-avatar { margin-right: 0; }
+.bubble { max-width: 72%; padding: 8px 12px; border-radius: 16px; font-size: 0.82rem; word-wrap: break-word; box-shadow: 0 2px 4px rgba(90, 90, 90, 0.05); border: 1px solid rgba(209, 209, 209, 0.4); position: relative; }
+.opponent .bubble::before { content: ''; position: absolute; left: -8px; top: 12px; width: 0; height: 0; border-style: solid; border-width: 6px 8px 6px 0; border-color: transparent rgba(219, 229, 241, 0.9) transparent transparent; filter: drop-shadow(-1px 0 1px rgba(0,0,0,0.05)); }
+.self .bubble::after { content: ''; position: absolute; right: -8px; top: 12px; width: 0; height: 0; border-style: solid; border-width: 6px 0 6px 8px; border-color: transparent transparent transparent rgba(241, 214, 214, 0.9); filter: drop-shadow(1px 0 1px rgba(0,0,0,0.05)); }
+.image-message { max-width: 90px; max-height: 90px; border-radius: 12px; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.self .bubble { background-color: rgba(241, 214, 214, 0.9); border-bottom-right-radius: 4px; }
+.opponent .bubble { background-color: rgba(219, 229, 241, 0.9); border-bottom-left-radius: 4px; }
+.message-meta { display: flex; gap: 6px; font-size: 0.55rem; margin-top: 3px; color: #8a8a8a; align-items: center; }
+.opponent .message-meta { justify-content: flex-start; }
+.self .message-meta { justify-content: flex-end; }
+.read-tag { position: absolute; bottom: -14px; right: 10px; font-size: 0.55rem; color: #8a8a8a; font-style: italic; background: transparent; pointer-events: none; }
+.image-wrapper .read-tag { bottom: -16px; right: 0; }
+.image-wrapper { display: flex; flex-direction: column; align-items: flex-end; position: relative; }
+.opponent .image-wrapper { align-items: flex-start; }
+.quote-block { font-size: 0.7rem; color: #8a8a8a; border-left: 3px solid #e1b2b2; padding-left: 8px; margin-bottom: 4px; word-break: break-all; background-color: rgba(0,0,0,0.03); border-radius: 4px; }
+.quote-text { font-style: italic; }
+.quote-bar { background-color: rgba(210, 230, 236, 0.9); padding: 6px 12px; margin: 0 12px 4px 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 0.7rem; color: #5a5a5a; border-left: 3px solid #e1b2b2; }
+.quote-bar .cancel-quote { background: none; border: none; font-size: 1rem; cursor: pointer; margin-left: 8px; color: #e1b2b2; }
+.chat-input-area { padding: 8px 12px 10px; background-color: rgba(210, 230, 236, 0.6); border-top: 1px solid #d1d1d1; display: flex; gap: 6px; align-items: flex-end; }
+.emoji-btn { background-color: #e1b2b2; border: 1px solid #d1d1d1; border-radius: 30px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.4rem; }
+.image-upload-btn { background-color: #e1b2b2; border: 1px solid #d1d1d1; border-radius: 30px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; }
+.message-field { flex: 1; border: 1px solid #d1d1d1; background-color: rgba(255, 255, 255, 0.7); border-radius: 22px; padding: 8px 14px; font-size: 0.85rem; resize: none; max-height: 80px; min-height: 36px; font-family: inherit; outline: none; }
+.send-button { background-color: #e1b2b2; border: 1px solid #d1d1d1; border-radius: 30px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3rem; }
+.privacy-note { text-align: center; font-size: 0.5rem; color: #8a8a8a; padding: 3px 0; background-color: rgba(210, 230, 236, 0.5); border-top: 1px solid #d1d1d1; }
+.empty-chat-hint { display: flex; justify-content: center; align-items: center; height: 100%; color: #8a8a8a; font-size: 0.85rem; font-style: italic; }
+</style>
 </head>
 <body>
-    <div class="love-talk">
-        <div class="chat-header">
-            <div class="profile-area">
-                <div class="avatar-container" id="avatarContainer">
-                    <img id="avatarImage" class="avatar-img" src="" alt="头像" style="display: none;">
-                    <div id="avatarPlaceholder" class="avatar-placeholder">👤</div>
-                </div>
-                <input type="file" id="avatarUpload" accept="image/*">
-                <div class="info-area">
-                    <div class="nickname-row">
-                        <span id="nicknameDisplay">秦彻</span>
-                        <button class="edit-nickname" id="editNicknameBtn">✎</button>
-                    </div>
-                    <div class="status-display"><span id="currentStatus">在线</span></div>
-                </div>
-            </div>
-            <div class="settings-icon" id="settingsIcon"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-        </div>
-
-        <div class="settings-panel" id="settingsPanel">
-            <div class="settings-tabs">
-                <div class="settings-tab active" id="tabLexicon">📋 文字词条</div>
-                <div class="settings-tab" id="tabImageLexicon">🖼️ 图片词条</div>
-                <div class="settings-tab" id="tabFrequency">⏱️ 回复频率</div>
-                <div class="settings-tab" id="tabBackup">💾 备份/导入</div>
-            </div>
-
-            <!-- 文字词条库 - 已替换为新的内容 -->
-            <div id="lexiconContent" class="lexicon-content" style="display: flex;">
-                <div class="lexicon-label"><span>对方回复文字词条</span><span>1-3条随机</span></div>
-                <textarea class="lexicon-textarea" id="lexiconTextarea"></textarea>
-                <div class="lexicon-actions">
-                    <button class="add-card-btn" id="addCardBtn">➕ 添加</button>
-                    <button class="remove-card-btn" id="removeCardBtn">➖ 删除最后</button>
-                </div>
-                <div class="lexicon-hint"><span>✨ 随机1-3条</span><span class="save-hint" id="lexiconCount">加载中</span></div>
-            </div>
-
-            <!-- 图片词条库 -->
-            <div id="imageLexiconContent" class="image-lexicon-content" style="display: none;">
-                <div class="lexicon-label"><span>对方可发送的图片</span><span>随机发1张</span></div>
-                <div class="image-list" id="imageListContainer"></div>
-                <input type="file" id="addImageInput" accept="image/*" style="display: none;">
-                <button class="add-image-btn" id="addImageBtn">➕ 添加图片到词条库</button>
-                <div class="image-hint">✨ 对方回复时随机发图(30%概率)</div>
-            </div>
-
-            <!-- 频率调节 -->
-            <div id="frequencyContent" class="frequency-content" style="display: none;">
-                <div class="slider-container">
-                    <div class="slider-label"><span>⏰ 回复间隔</span><span class="frequency-value" id="frequencyValue">5 秒</span></div>
-                    <input type="range" id="frequencySlider" min="5" max="60" value="5" step="1">
-                    <div class="slider-label"><span>⚡ 滑块拖动即可实时生效</span><span>5秒 ↔ 60秒</span></div>
-                </div>
-                <div class="lexicon-label"><span>💡 调节后下次回复即按新间隔</span></div>
-            </div>
-
-            <!-- 备份/导入 -->
-            <div id="backupContent" class="backup-content" style="display: none;">
-                <div class="lexicon-label"><span>📦 完整聊天记录备份</span><span>JSON格式 | 不丢失任何内容</span></div>
-                <div class="backup-buttons">
-                    <button class="small-btn" id="exportFullBtn">📤 导出完整备份</button>
-                    <button class="small-btn" id="importFullBtn">📥 导入备份文件</button>
-                </div>
-                <div class="backup-section">
-                    <div class="lexicon-label"><span>📄 导出纯文本记录</span><span>可读的txt文件</span></div>
-                    <div class="backup-buttons">
-                        <button class="small-btn" id="saveChatBtn">💾 导出为txt</button>
-                        <button class="small-btn" id="clearChatBtn">🗑️ 清空记录</button>
-                    </div>
-                </div>
-                <div class="image-hint">✨ 完整备份为JSON格式，可完美恢复全部聊天记录、图片、文字。</div>
-            </div>
-        </div>
-
-        <div class="chat-messages" id="messageContainer"></div>
-
-        <div class="chat-input-area">
-            <div class="image-upload-btn" id="imageUploadBtn">📷</div>
-            <input type="file" id="imageInput" accept="image/*" style="display: none;">
-            <textarea class="message-field" id="messageInput" placeholder="给对面的人..." rows="1"></textarea>
-            <div class="send-button" id="sendButton">↑</div>
-        </div>
-        <div class="privacy-note">❤️ LOVE TALK · 支持图片 · 频率可调 · 完整备份</div>
+<div class="love-talk">
+<div class="chat-header">
+  <div class="other-avatar-area">
+    <div class="other-avatar-container" id="otherAvatarContainer">
+      <img id="otherAvatarImage" class="other-avatar-img" src="" alt="对方头像" style="display: none;">
+      <div id="otherAvatarPlaceholder" class="other-avatar-placeholder">👤</div>
     </div>
+    <input type="file" id="otherAvatarUpload" accept="image/*">
+    <button class="other-nickname" id="otherNicknameBtn">秦彻</button>
+  </div>
+  <div class="settings-heart" id="settingsHeart">♡</div>
+  <div class="my-profile">
+    <div class="my-avatar-container" id="myAvatarContainer">
+      <img id="myAvatarImage" class="my-avatar-img" src="" alt="我的头像" style="display: none;">
+      <div id="myAvatarPlaceholder" class="my-avatar-placeholder">👤</div>
+    </div>
+    <input type="file" id="myAvatarUpload" accept="image/*">
+    <button class="my-nickname" id="myNicknameBtn">我</button>
+  </div>
+</div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-tabs">
+    <div class="settings-tab active" id="tabLexicon">📋 文字词条</div>
+    <div class="settings-tab" id="tabImageLexicon">🖼️ 图片词条</div>
+    <div class="settings-tab" id="tabFrequency">⏱️ 回复频率</div>
+    <div class="settings-tab" id="tabBackup">💾 备份/导入</div>
+  </div>
+  <div id="lexiconContent" class="lexicon-content" style="display: flex;">
+    <div class="lexicon-label"><span>对方回复文字词条</span><span>1-3条随机</span></div>
+    <textarea class="lexicon-textarea" id="lexiconTextarea"></textarea>
+    <div class="lexicon-actions">
+      <button class="add-card-btn" id="addCardBtn">➕ 添加</button>
+      <button class="remove-card-btn" id="removeCardBtn">➖ 删除最后</button>
+    </div>
+    <div class="lexicon-hint"><span>✨ 随机1-3条</span><span class="save-hint" id="lexiconCount">加载中</span></div>
+  </div>
+  <div id="imageLexiconContent" class="image-lexicon-content" style="display: none;">
+    <div class="lexicon-label"><span>对方可发送的图片</span><span>无限容量</span></div>
+    <div class="image-list" id="imageListContainer"></div>
+    <input type="file" id="addImageInput" accept="image/*" style="display: none;">
+    <button class="add-image-btn" id="addImageBtn">➕ 添加图片到词条库</button>
+    <div class="image-hint">✨ 对方回复时随机发图(30%概率)</div>
+  </div>
+  <div id="frequencyContent" class="frequency-content" style="display: none;">
+    <div class="slider-container">
+      <div class="slider-label"><span>⏰ 回复间隔</span><span class="frequency-value" id="frequencyValue">5 秒</span></div>
+      <input type="range" id="frequencySlider" min="5" max="60" value="5" step="1">
+      <div class="slider-label"><span>⚡ 实时生效</span><span>5秒 ↔ 60秒</span></div>
+    </div>
+    <div class="lexicon-label"><span>💡 调节后下次回复即按新间隔</span></div>
+  </div>
+  <div id="backupContent" class="backup-content" style="display: none;">
+    <div class="lexicon-label"><span>📦 完整聊天记录备份</span><span>JSON格式</span></div>
+    <div class="backup-buttons">
+      <button class="small-btn" id="exportFullBtn">📤 导出完整备份</button>
+      <button class="small-btn" id="importFullBtn">📥 导入备份文件</button>
+    </div>
+    <div class="backup-section">
+      <div class="lexicon-label"><span>📄 导出纯文本记录</span><span>txt文件</span></div>
+      <div class="backup-buttons">
+        <button class="small-btn" id="saveChatBtn">💾 导出为txt</button>
+        <button class="small-btn" id="clearChatBtn">🗑️ 清空所有记录</button>
+      </div>
+    </div>
+    <div class="backup-section">
+      <div class="lexicon-label"><span>🖼️ 图片管理</span><span>释放空间</span></div>
+      <div class="backup-buttons">
+        <button class="small-btn" id="clearImagesOnlyBtn">🗑️ 仅清空图片消息</button>
+      </div>
+      <div class="image-hint">✨ 清空所有图片消息（保留文字），可释放存储空间。</div>
+    </div>
+  </div>
+</div>
+<div class="chat-messages" id="messageContainer"></div>
+<div id="quoteBar" class="quote-bar" style="display: none;">
+  <span id="quotePreview">引用内容</span>
+  <button class="cancel-quote" id="cancelQuoteBtn">✕</button>
+</div>
+<div class="chat-input-area">
+  <div class="emoji-btn" id="emojiBtn">😊</div>
+  <div class="image-upload-btn" id="imageUploadBtn">📷</div>
+  <input type="file" id="imageInput" accept="image/*" style="display: none;">
+  <textarea class="message-field" id="messageInput" placeholder="给对面的人..." rows="1"></textarea>
+  <div class="send-button" id="sendButton">↑</div>
+</div>
+<div id="emojiPanel" class="emoji-panel hidden"></div>
+<div class="privacy-note">❤️ 感谢你的出现，过去的往事就如烟。</div>
+</div>
 
-    <script>
-        (function() {
-            // DOM 元素
-            const messageInput = document.getElementById('messageInput');
-            const sendButton = document.getElementById('sendButton');
-            const messageContainer = document.getElementById('messageContainer');
-            const imageUploadBtn = document.getElementById('imageUploadBtn');
-            const imageInput = document.getElementById('imageInput');
-            const settingsIcon = document.getElementById('settingsIcon');
-            const settingsPanel = document.getElementById('settingsPanel');
-            
-            const tabLexicon = document.getElementById('tabLexicon');
-            const tabImageLexicon = document.getElementById('tabImageLexicon');
-            const tabFrequency = document.getElementById('tabFrequency');
-            const tabBackup = document.getElementById('tabBackup');
-            const lexiconContent = document.getElementById('lexiconContent');
-            const imageLexiconContent = document.getElementById('imageLexiconContent');
-            const frequencyContent = document.getElementById('frequencyContent');
-            const backupContent = document.getElementById('backupContent');
-            
-            const lexiconTextarea = document.getElementById('lexiconTextarea');
-            const lexiconCountSpan = document.getElementById('lexiconCount');
-            const imageListContainer = document.getElementById('imageListContainer');
-            const addImageBtn = document.getElementById('addImageBtn');
-            const addImageInput = document.getElementById('addImageInput');
-            
-            const frequencySlider = document.getElementById('frequencySlider');
-            const frequencyValue = document.getElementById('frequencyValue');
-            
-            const exportFullBtn = document.getElementById('exportFullBtn');
-            const importFullBtn = document.getElementById('importFullBtn');
-            const saveChatBtn = document.getElementById('saveChatBtn');
-            const clearChatBtn = document.getElementById('clearChatBtn');
-            
-            const avatarContainer = document.getElementById('avatarContainer');
-            const avatarUpload = document.getElementById('avatarUpload');
-            const avatarImage = document.getElementById('avatarImage');
-            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
-            const nicknameDisplay = document.getElementById('nicknameDisplay');
-            const editNicknameBtn = document.getElementById('editNicknameBtn');
-            const currentStatus = document.getElementById('currentStatus');
-            const addCardBtn = document.getElementById('addCardBtn');
-            const removeCardBtn = document.getElementById('removeCardBtn');
+<script>
+(function() {
+// DOM 元素
+const messageInput = document.getElementById('messageInput');
+const sendButton = document.getElementById('sendButton');
+const messageContainer = document.getElementById('messageContainer');
+const imageUploadBtn = document.getElementById('imageUploadBtn');
+const imageInput = document.getElementById('imageInput');
+const settingsHeart = document.getElementById('settingsHeart');
+const settingsPanel = document.getElementById('settingsPanel');
+const quoteBar = document.getElementById('quoteBar');
+const quotePreview = document.getElementById('quotePreview');
+const cancelQuoteBtn = document.getElementById('cancelQuoteBtn');
+const emojiBtn = document.getElementById('emojiBtn');
+const emojiPanel = document.getElementById('emojiPanel');
 
-            const SELF_ID = 'me';
-            const OTHER_ID = 'them';
-            let replyPhrases = [];
-            let imagePhrases = [];
-            let messages = [];
-            let replyDelaySec = 5;
-            
-            const STORAGE_KEYS = {
-                MESSAGES: 'loveTalk_messages',
-                NICKNAME: 'loveTalk_nickname',
-                AVATAR: 'loveTalk_avatar',
-                LEXICON: 'loveTalk_lexicon',
-                IMAGES: 'loveTalk_images',
-                STATUS: 'loveTalk_status',
-                DELAY: 'loveTalk_delay'
-            };
+const tabLexicon = document.getElementById('tabLexicon');
+const tabImageLexicon = document.getElementById('tabImageLexicon');
+const tabFrequency = document.getElementById('tabFrequency');
+const tabBackup = document.getElementById('tabBackup');
+const lexiconContent = document.getElementById('lexiconContent');
+const imageLexiconContent = document.getElementById('imageLexiconContent');
+const frequencyContent = document.getElementById('frequencyContent');
+const backupContent = document.getElementById('backupContent');
+const lexiconTextarea = document.getElementById('lexiconTextarea');
+const lexiconCountSpan = document.getElementById('lexiconCount');
+const imageListContainer = document.getElementById('imageListContainer');
+const addImageBtn = document.getElementById('addImageBtn');
+const addImageInput = document.getElementById('addImageInput');
+const frequencySlider = document.getElementById('frequencySlider');
+const frequencyValue = document.getElementById('frequencyValue');
+const exportFullBtn = document.getElementById('exportFullBtn');
+const importFullBtn = document.getElementById('importFullBtn');
+const saveChatBtn = document.getElementById('saveChatBtn');
+const clearChatBtn = document.getElementById('clearChatBtn');
+const clearImagesOnlyBtn = document.getElementById('clearImagesOnlyBtn');
+const otherAvatarContainer = document.getElementById('otherAvatarContainer');
+const otherAvatarUpload = document.getElementById('otherAvatarUpload');
+const otherAvatarImage = document.getElementById('otherAvatarImage');
+const otherAvatarPlaceholder = document.getElementById('otherAvatarPlaceholder');
+const otherNicknameBtn = document.getElementById('otherNicknameBtn');
+const myAvatarContainer = document.getElementById('myAvatarContainer');
+const myAvatarUpload = document.getElementById('myAvatarUpload');
+const myAvatarImage = document.getElementById('myAvatarImage');
+const myAvatarPlaceholder = document.getElementById('myAvatarPlaceholder');
+const myNicknameBtn = document.getElementById('myNicknameBtn');
+const addCardBtn = document.getElementById('addCardBtn');
+const removeCardBtn = document.getElementById('removeCardBtn');
 
-            // 新词条库内容（完整版）
-            const DEFAULT_LEXICON = `亲爱的
+const SELF_ID = 'me';
+const OTHER_ID = 'them';
+let replyPhrases = [];
+let imagePhrases = [];
+let messages = [];
+let replyDelaySec = 5;
+let otherAvatarUrl = '';
+let myAvatarUrl = '';
+let otherNickname = '秦彻';
+let myNickname = '我';
+let currentQuote = null;
+let emojis = [];
+
+const STORAGE_KEYS = {
+  MESSAGES: 'loveTalk_messages',
+  OTHER_NICKNAME: 'loveTalk_otherNickname',
+  MY_NICKNAME: 'loveTalk_myNickname',
+  OTHER_AVATAR: 'loveTalk_otherAvatar',
+  MY_AVATAR: 'loveTalk_myAvatar',
+  LEXICON: 'loveTalk_lexicon',
+  IMAGES: 'loveTalk_images',
+  DELAY: 'loveTalk_delay',
+  EMOJIS: 'loveTalk_emojis'
+};
+
+// 辅助函数
+function getCurrentDateTime() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const hours = now.getHours().toString().padStart(2,'0');
+  const minutes = now.getMinutes().toString().padStart(2,'0');
+  return {
+    dateStr: `${year}-${month}-${day}`,
+    dateDisplay: `${year}年${month}月${day}日`,
+    timeStr: `${hours}:${minutes}`,
+    fullTimestamp: now.getTime()
+  };
+}
+function formatDateDisplay(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) return `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日`;
+  return dateStr;
+}
+function generateId() {
+  return Date.now() + '-' + Math.random().toString(36).substr(2, 8);
+}
+function scrollToBottom() {
+  requestAnimationFrame(() => messageContainer.scrollTop = messageContainer.scrollHeight);
+}
+function showEmptyHint() {
+  if (!document.getElementById('emptyHint')) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'empty-chat-hint';
+    emptyDiv.id = 'emptyHint';
+    emptyDiv.textContent = '💬 写下第一句悄悄话';
+    messageContainer.appendChild(emptyDiv);
+  }
+}
+function hideEmptyHint() {
+  const h = document.getElementById('emptyHint');
+  if (h) h.remove();
+}
+function isStorageSpaceEnough(additionalDataURL = '') {
+  try {
+    const messagesStr = JSON.stringify(messages);
+    let totalSize = messagesStr.length * 2;
+    if (additionalDataURL) totalSize += additionalDataURL.length * 0.75;
+    const otherEstimate = 1024 * 1024;
+    const limit = 5 * 1024 * 1024;
+    return (totalSize + otherEstimate) < limit;
+  } catch(e) { return true; }
+}
+async function compressImage(file, maxSizeKB = 300, maxWidth = 500, qualityStart = 0.6) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        let quality = qualityStart;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        let compressed = canvas.toDataURL('image/jpeg', quality);
+        while (compressed.length > maxSizeKB * 1024 && quality > 0.3) {
+          quality -= 0.1;
+          compressed = canvas.toDataURL('image/jpeg', quality);
+        }
+        if (compressed.length > maxSizeKB * 1024) {
+          reject(new Error(`压缩后仍超过 ${maxSizeKB}KB`));
+        } else {
+          resolve(compressed);
+        }
+      };
+      img.onerror = reject;
+    };
+    reader.onerror = reject;
+  });
+}
+function getRandomWillReply() { return Math.random() < 0.5; }
+function getRandomQuoteForReply() {
+  if (Math.random() > 0.3) return null;
+  for (let i = messages.length-1; i >= 0; i--) {
+    if (messages[i].sender === SELF_ID) {
+      return { messageId: messages[i].id, text: messages[i].type === 'text' ? messages[i].text : '[图片]', sender: SELF_ID, type: messages[i].type };
+    }
+  }
+  return null;
+}
+
+// UI 创建
+function createDateSeparator(dateDisplay) {
+  const div = document.createElement('div');
+  div.className = 'date-separator';
+  const span = document.createElement('span');
+  span.textContent = dateDisplay;
+  div.appendChild(span);
+  return div;
+}
+
+// 核心：创建消息行（优化后的引用逻辑，无弹窗，滑动不触发）
+function createMessageRow(msg) {
+  const isSelf = msg.sender === SELF_ID;
+  const row = document.createElement('div');
+  row.className = 'message-row ' + (isSelf ? 'self' : 'opponent');
+  row.dataset.msgId = msg.id;
+  // 头像
+  const avatar = document.createElement('img');
+  avatar.className = 'message-avatar';
+  if (isSelf) avatar.src = myAvatarUrl || '';
+  else avatar.src = otherAvatarUrl || '';
+  avatar.alt = '头像';
+  if (!avatar.src) avatar.style.backgroundColor = '#e1b2b2';
+  // 内容
+  let content;
+  if (msg.type === 'image') {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'image-wrapper';
+    const img = document.createElement('img');
+    img.src = msg.data;
+    img.className = 'image-message';
+    wrapper.appendChild(img);
+    const meta = document.createElement('div'); meta.className = 'message-meta';
+    const timeSpan = document.createElement('span'); timeSpan.textContent = msg.time;
+    meta.appendChild(timeSpan);
+    wrapper.appendChild(meta);
+    if (isSelf && msg.read === true) {
+      const readTag = document.createElement('div');
+      readTag.className = 'read-tag';
+      readTag.textContent = '已读';
+      wrapper.appendChild(readTag);
+    }
+    content = wrapper;
+  } else {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    if (msg.quote) {
+      const quoteDiv = document.createElement('div');
+      quoteDiv.className = 'quote-block';
+      const quoteText = document.createElement('div');
+      quoteText.className = 'quote-text';
+      const displayName = msg.quote.sender === SELF_ID ? myNickname : otherNickname;
+      quoteText.innerHTML = `${displayName}：${msg.quote.text || '[图片]'}`;
+      quoteDiv.appendChild(quoteText);
+      bubble.appendChild(quoteDiv);
+    }
+    const textSpan = document.createElement('span');
+    textSpan.textContent = msg.text;
+    bubble.appendChild(textSpan);
+    const meta = document.createElement('div'); meta.className = 'message-meta';
+    const timeSpan = document.createElement('span'); timeSpan.textContent = msg.time;
+    meta.appendChild(timeSpan);
+    bubble.appendChild(meta);
+    if (isSelf && msg.read === true) {
+      const readTag = document.createElement('div');
+      readTag.className = 'read-tag';
+      readTag.textContent = '已读';
+      bubble.appendChild(readTag);
+    }
+    content = bubble;
+  }
+  if (isSelf) {
+    row.appendChild(content);
+    row.appendChild(avatar);
+  } else {
+    row.appendChild(avatar);
+    row.appendChild(content);
+  }
+
+  // ========== 优化后的引用逻辑：无弹窗，滑动不触发 ==========
+  let touchTimer = null;
+  let hasMoved = false;
+  const directQuote = () => {
+    currentQuote = {
+      messageId: msg.id,
+      text: msg.type === 'text' ? msg.text : '[图片]',
+      sender: msg.sender,
+      type: msg.type
+    };
+    quotePreview.innerText = `引用：${currentQuote.text}`;
+    quoteBar.style.display = 'flex';
+  };
+  // 右键直接引用
+  row.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    directQuote();
+  });
+  // 移动端长按，带移动检测
+  row.addEventListener('touchstart', (e) => {
+    hasMoved = false;
+    touchTimer = setTimeout(() => {
+      if (!hasMoved) {
+        e.preventDefault();
+        directQuote();
+      }
+      touchTimer = null;
+    }, 500);
+  });
+  row.addEventListener('touchmove', () => {
+    hasMoved = true;
+    if (touchTimer) {
+      clearTimeout(touchTimer);
+      touchTimer = null;
+    }
+  });
+  row.addEventListener('touchend', () => {
+    if (touchTimer) {
+      clearTimeout(touchTimer);
+      touchTimer = null;
+    }
+  });
+  return row;
+}
+
+function _appendMessage(msg, shouldSave = true) {
+  hideEmptyHint();
+  const lastMsg = messages.length > 0 ? messages[messages.length-1] : null;
+  if (lastMsg && lastMsg.date !== msg.date) {
+    messageContainer.appendChild(createDateSeparator(formatDateDisplay(msg.date)));
+  } else if (messages.length === 0) {
+    messageContainer.appendChild(createDateSeparator(formatDateDisplay(msg.date)));
+  }
+  const row = createMessageRow(msg);
+  messageContainer.appendChild(row);
+  if (shouldSave) {
+    try {
+      messages.push(msg);
+      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+      scrollToBottom();
+      return true;
+    } catch(e) {
+      console.error("存储失败", e);
+      messages.pop();
+      row.remove();
+      alert("存储失败，可能空间不足。请使用「仅清空图片消息」或删除图片词条库中的图片。");
+      return false;
+    }
+  }
+  scrollToBottom();
+  return true;
+}
+
+function appendTextMessage(text, sender, shouldSave = true, willReply = null, quote = null) {
+  try {
+    const id = generateId();
+    const { dateStr, timeStr, fullTimestamp } = getCurrentDateTime();
+    const isSelf = sender === SELF_ID;
+    const msg = { id, type: 'text', text, sender, time: timeStr, date: dateStr, read: isSelf ? true : undefined, timestamp: fullTimestamp };
+    if (quote) msg.quote = quote;
+    const success = _appendMessage(msg, shouldSave);
+    if (!success) return false;
+    const finalWillReply = (isSelf && willReply === null) ? getRandomWillReply() : (willReply !== null ? willReply : false);
+    return finalWillReply;
+  } catch(e) { console.error(e); alert("发送文字失败"); return false; }
+}
+
+function appendImageMessage(data, sender, shouldSave = true, willReply = null, quote = null) {
+  try {
+    const id = generateId();
+    const { dateStr, timeStr, fullTimestamp } = getCurrentDateTime();
+    const isSelf = sender === SELF_ID;
+    const msg = { id, type: 'image', data, sender, time: timeStr, date: dateStr, read: isSelf ? true : undefined, timestamp: fullTimestamp };
+    if (quote) msg.quote = quote;
+    const success = _appendMessage(msg, shouldSave);
+    if (!success) return false;
+    const finalWillReply = (isSelf && willReply === null) ? getRandomWillReply() : (willReply !== null ? willReply : false);
+    return finalWillReply;
+  } catch(e) { console.error(e); alert("发送图片失败"); return false; }
+}
+
+async function sendSelfImage(file) {
+  if (!file) return;
+  try {
+    const compressed = await compressImage(file, 300, 500, 0.6);
+    if (!isStorageSpaceEnough(compressed)) {
+      alert("存储空间不足，请先使用「仅清空图片消息」或删除图片词条库中的图片。");
+      return;
+    }
+    const quote = currentQuote ? { ...currentQuote } : null;
+    const willReply = appendImageMessage(compressed, SELF_ID, true, null, quote);
+    if (willReply === false) return;
+    currentQuote = null;
+    quoteBar.style.display = 'none';
+    quotePreview.innerText = '';
+    scheduleOpponentReplyIfNeeded(willReply);
+  } catch (err) {
+    alert("图片处理失败: " + (err.message || "请尝试更小的图片"));
+  }
+  messageInput.focus();
+}
+
+async function sendEmoji(emojiDataUrl) {
+  if (!emojiDataUrl) return;
+  if (!isStorageSpaceEnough(emojiDataUrl)) {
+    alert("存储空间不足，请先清理一些图片消息或表情库。");
+    return;
+  }
+  const quote = currentQuote ? { ...currentQuote } : null;
+  const willReply = appendImageMessage(emojiDataUrl, SELF_ID, true, null, quote);
+  if (willReply === false) return;
+  currentQuote = null;
+  quoteBar.style.display = 'none';
+  quotePreview.innerText = '';
+  scheduleOpponentReplyIfNeeded(willReply);
+  messageInput.focus();
+}
+
+function sendSelfText() {
+  const raw = messageInput.value.trim();
+  if (raw === '') return;
+  const quote = currentQuote ? { ...currentQuote } : null;
+  const willReply = appendTextMessage(raw, SELF_ID, true, null, quote);
+  messageInput.value = '';
+  messageInput.style.height = 'auto';
+  currentQuote = null;
+  quoteBar.style.display = 'none';
+  quotePreview.innerText = '';
+  scheduleOpponentReplyIfNeeded(willReply);
+  messageInput.focus();
+}
+
+function getRandomPhrases() {
+  if (!replyPhrases.length) return ['...'];
+  const count = Math.floor(Math.random() * 3) + 1;
+  const shuffled = [...replyPhrases].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+function simulateOpponentReply() {
+  const quote = getRandomQuoteForReply();
+  const shouldSendImage = imagePhrases.length > 0 && Math.random() < 0.3;
+  if (shouldSendImage) {
+    const randomImg = imagePhrases[Math.floor(Math.random() * imagePhrases.length)];
+    appendImageMessage(randomImg, OTHER_ID, true, null, quote);
+  } else {
+    const textList = getRandomPhrases();
+    let delay = 0;
+    textList.forEach((txt, idx) => {
+      setTimeout(() => appendTextMessage(txt, OTHER_ID, true, null, quote), delay);
+      delay += 600;
+    });
+  }
+}
+let opponentTimer = null;
+function scheduleOpponentReplyIfNeeded(willReply) {
+  if (willReply === true) {
+    if (opponentTimer) clearTimeout(opponentTimer);
+    opponentTimer = setTimeout(() => {
+      simulateOpponentReply();
+      opponentTimer = null;
+    }, replyDelaySec * 1000);
+  }
+}
+
+// 表情库管理
+function loadEmojis() {
+  const saved = localStorage.getItem(STORAGE_KEYS.EMOJIS);
+  if (saved) try { emojis = JSON.parse(saved) || []; } catch(e) { emojis = []; }
+  renderEmojiPanel();
+}
+function saveEmojis() { localStorage.setItem(STORAGE_KEYS.EMOJIS, JSON.stringify(emojis)); }
+async function addEmoji(file) {
+  if (!file) return;
+  try {
+    const compressed = await compressImage(file, 150, 200, 0.6);
+    emojis.push(compressed);
+    saveEmojis();
+    renderEmojiPanel();
+  } catch(err) { alert("表情添加失败，请尝试更小的图片。"); }
+}
+function deleteEmoji(index) {
+  if (confirm("确定删除这个表情吗？")) {
+    emojis.splice(index, 1);
+    saveEmojis();
+    renderEmojiPanel();
+  }
+}
+function renderEmojiPanel() {
+  emojiPanel.innerHTML = '';
+  if (emojis.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.style.width = '100%';
+    emptyMsg.style.textAlign = 'center';
+    emptyMsg.style.padding = '12px';
+    emptyMsg.style.color = '#8a8a8a';
+    emptyMsg.textContent = '暂无表情，点击“+”添加';
+    emojiPanel.appendChild(emptyMsg);
+  }
+  emojis.forEach((emoji, idx) => {
+    const div = document.createElement('div');
+    div.className = 'emoji-item';
+    const img = document.createElement('img');
+    img.src = emoji;
+    div.appendChild(img);
+    const delBtn = document.createElement('div');
+    delBtn.className = 'delete-emoji';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteEmoji(idx); });
+    div.appendChild(delBtn);
+    div.addEventListener('click', () => sendEmoji(emoji));
+    emojiPanel.appendChild(div);
+  });
+  const addDiv = document.createElement('div');
+  addDiv.className = 'add-emoji-btn';
+  addDiv.textContent = '+';
+  addDiv.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => { if (e.target.files[0]) addEmoji(e.target.files[0]); };
+    input.click();
+  });
+  emojiPanel.appendChild(addDiv);
+}
+let emojiPanelVisible = false;
+emojiBtn.addEventListener('click', () => {
+  if (emojiPanelVisible) {
+    emojiPanel.classList.add('hidden');
+    emojiPanelVisible = false;
+  } else {
+    emojiPanel.classList.remove('hidden');
+    emojiPanelVisible = true;
+    const closeHandler = (e) => {
+      if (!emojiPanel.contains(e.target) && e.target !== emojiBtn) {
+        emojiPanel.classList.add('hidden');
+        emojiPanelVisible = false;
+        document.removeEventListener('click', closeHandler);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeHandler), 100);
+  }
+});
+
+// 存储加载
+function loadDelay() {
+  const saved = localStorage.getItem(STORAGE_KEYS.DELAY);
+  if (saved) {
+    replyDelaySec = parseInt(saved, 10);
+    if (isNaN(replyDelaySec) || replyDelaySec < 5) replyDelaySec = 5;
+    if (replyDelaySec > 60) replyDelaySec = 60;
+  }
+  frequencySlider.value = replyDelaySec;
+  frequencyValue.innerText = replyDelaySec + ' 秒';
+}
+function saveDelay() { localStorage.setItem(STORAGE_KEYS.DELAY, replyDelaySec); }
+function loadImages() {
+  const saved = localStorage.getItem(STORAGE_KEYS.IMAGES);
+  if (saved) try { imagePhrases = JSON.parse(saved) || []; } catch(e) { imagePhrases = []; }
+  renderImageList();
+}
+function saveImages() { localStorage.setItem(STORAGE_KEYS.IMAGES, JSON.stringify(imagePhrases)); }
+function renderImageList() {
+  imageListContainer.innerHTML = '';
+  imagePhrases.forEach((imgSrc, idx) => {
+    const div = document.createElement('div');
+    div.className = 'image-preview-item';
+    div.innerHTML = `<img src="${imgSrc}"><div class="delete-image-btn" data-index="${idx}">✕</div>`;
+    imageListContainer.appendChild(div);
+  });
+  document.querySelectorAll('.delete-image-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.index);
+      imagePhrases.splice(idx, 1);
+      saveImages();
+      renderImageList();
+    });
+  });
+}
+function loadOtherAvatar() {
+  const saved = localStorage.getItem(STORAGE_KEYS.OTHER_AVATAR);
+  if (saved) {
+    otherAvatarUrl = saved;
+    otherAvatarImage.src = saved;
+    otherAvatarImage.style.display = 'block';
+    otherAvatarPlaceholder.style.display = 'none';
+  } else {
+    otherAvatarUrl = '';
+    otherAvatarImage.style.display = 'none';
+    otherAvatarPlaceholder.style.display = 'flex';
+  }
+}
+function saveOtherAvatar(url) {
+  otherAvatarUrl = url;
+  localStorage.setItem(STORAGE_KEYS.OTHER_AVATAR, url);
+  if (url) {
+    otherAvatarImage.src = url;
+    otherAvatarImage.style.display = 'block';
+    otherAvatarPlaceholder.style.display = 'none';
+  } else {
+    otherAvatarImage.style.display = 'none';
+    otherAvatarPlaceholder.style.display = 'flex';
+  }
+}
+function loadOtherNickname() {
+  const saved = localStorage.getItem(STORAGE_KEYS.OTHER_NICKNAME);
+  if (saved) otherNickname = saved;
+  otherNicknameBtn.textContent = otherNickname;
+}
+function saveOtherNickname(name) {
+  otherNickname = name;
+  localStorage.setItem(STORAGE_KEYS.OTHER_NICKNAME, name);
+  otherNicknameBtn.textContent = name;
+}
+function loadMyAvatar() {
+  const saved = localStorage.getItem(STORAGE_KEYS.MY_AVATAR);
+  if (saved) {
+    myAvatarUrl = saved;
+    myAvatarImage.src = saved;
+    myAvatarImage.style.display = 'block';
+    myAvatarPlaceholder.style.display = 'none';
+  } else {
+    myAvatarUrl = '';
+    myAvatarImage.style.display = 'none';
+    myAvatarPlaceholder.style.display = 'flex';
+  }
+}
+function saveMyAvatar(url) {
+  myAvatarUrl = url;
+  localStorage.setItem(STORAGE_KEYS.MY_AVATAR, url);
+  if (url) {
+    myAvatarImage.src = url;
+    myAvatarImage.style.display = 'block';
+    myAvatarPlaceholder.style.display = 'none';
+  } else {
+    myAvatarImage.style.display = 'none';
+    myAvatarPlaceholder.style.display = 'flex';
+  }
+}
+function loadMyNickname() {
+  const saved = localStorage.getItem(STORAGE_KEYS.MY_NICKNAME);
+  if (saved) myNickname = saved;
+  myNicknameBtn.textContent = myNickname;
+}
+function saveMyNickname(name) {
+  myNickname = name;
+  localStorage.setItem(STORAGE_KEYS.MY_NICKNAME, name);
+  myNicknameBtn.textContent = name;
+}
+function loadLexicon() {
+  const saved = localStorage.getItem(STORAGE_KEYS.LEXICON);
+  if (saved) lexiconTextarea.value = saved;
+  else lexiconTextarea.value = DEFAULT_LEXICON;
+  updateLexiconFromTextarea();
+}
+function updateLexiconFromTextarea() {
+  const lines = lexiconTextarea.value.split('\n').map(l => l.trim()).filter(l => l && !/^[\s\-\—\=\_]+$/.test(l));
+  replyPhrases = [...new Set(lines)];
+  if (replyPhrases.length === 0) replyPhrases = ['❤️'];
+  lexiconCountSpan.innerText = replyPhrases.length + ' 条';
+  localStorage.setItem(STORAGE_KEYS.LEXICON, lexiconTextarea.value);
+}
+function loadMessagesFromStorage() {
+  const saved = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+  if (saved) try { messages = JSON.parse(saved) || []; } catch(e) { messages = []; }
+  messageContainer.innerHTML = '';
+  if (messages.length === 0) showEmptyHint(); else hideEmptyHint();
+  let lastDate = null;
+  messages.forEach(msg => {
+    if (lastDate !== msg.date) {
+      messageContainer.appendChild(createDateSeparator(formatDateDisplay(msg.date)));
+      lastDate = msg.date;
+    }
+    messageContainer.appendChild(createMessageRow(msg));
+  });
+  scrollToBottom();
+}
+function clearImagesOnly() {
+  if (confirm('确定要清空所有图片消息吗？文字消息会保留。此操作不可撤销。\n注意：图片词条库和表情库中的图片不会自动删除，如需释放更多空间请手动删除。')) {
+    const newMessages = messages.filter(msg => msg.type !== 'image');
+    messages = newMessages;
+    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+    messageContainer.innerHTML = '';
+    if (messages.length === 0) showEmptyHint(); else hideEmptyHint();
+    let lastDate = null;
+    messages.forEach(msg => {
+      if (lastDate !== msg.date) {
+        messageContainer.appendChild(createDateSeparator(formatDateDisplay(msg.date)));
+        lastDate = msg.date;
+      }
+      messageContainer.appendChild(createMessageRow(msg));
+    });
+    scrollToBottom();
+    alert('已清空所有图片消息，存储空间已释放。');
+  }
+}
+function exportFullBackup() {
+  const backup = { version: '2.0', exportTime: new Date().toISOString(), messages, otherNickname, myNickname, otherAvatar: otherAvatarUrl, myAvatar: myAvatarUrl, lexicon: lexiconTextarea.value, images: imagePhrases, delay: replyDelaySec, emojis };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `LOVE_TALK_backup_${new Date().toISOString().slice(0,19)}.json`; a.click(); URL.revokeObjectURL(a.href);
+}
+function importFullBackup() {
+  const input = document.createElement('input'); input.type = 'file'; input.accept = 'application/json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const backup = JSON.parse(ev.target.result);
+        if (backup.messages) messages = backup.messages;
+        if (backup.otherNickname) saveOtherNickname(backup.otherNickname);
+        if (backup.myNickname) saveMyNickname(backup.myNickname);
+        if (backup.otherAvatar) saveOtherAvatar(backup.otherAvatar);
+        if (backup.myAvatar) saveMyAvatar(backup.myAvatar);
+        if (backup.lexicon) lexiconTextarea.value = backup.lexicon;
+        if (backup.images) imagePhrases = backup.images;
+        if (backup.delay) { replyDelaySec = backup.delay; frequencySlider.value = replyDelaySec; frequencyValue.innerText = replyDelaySec + ' 秒'; saveDelay(); }
+        if (backup.emojis) { emojis = backup.emojis; saveEmojis(); renderEmojiPanel(); }
+        localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+        localStorage.setItem(STORAGE_KEYS.LEXICON, lexiconTextarea.value);
+        saveImages(); saveDelay(); updateLexiconFromTextarea(); renderImageList();
+        messageContainer.innerHTML = '';
+        let lastDate = null;
+        messages.forEach(msg => {
+          if (lastDate !== msg.date) {
+            messageContainer.appendChild(createDateSeparator(formatDateDisplay(msg.date)));
+            lastDate = msg.date;
+          }
+          messageContainer.appendChild(createMessageRow(msg));
+        });
+        if (messages.length === 0) showEmptyHint(); else hideEmptyHint();
+        scrollToBottom();
+        alert('导入成功！');
+      } catch(e) { alert('备份文件格式错误'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+function saveChatToFile() {
+  if (messages.length === 0) { alert('暂无消息可保存'); return; }
+  let chatText = `LOVE TALK 聊天记录\n保存时间：${new Date().toLocaleString()}\n对方昵称：${otherNickname}\n我的昵称：${myNickname}\n================================\n\n`;
+  messages.forEach(msg => {
+    const sender = msg.sender === SELF_ID ? myNickname : otherNickname;
+    const dateLabel = msg.date ? msg.date + ' ' : '';
+    if (msg.type === 'image') chatText += `${dateLabel}[${msg.time}] ${sender}：📷 发送了一张图片\n`;
+    else {
+      let line = `${dateLabel}[${msg.time}] ${sender}：${msg.text}`;
+      if (msg.quote) line += `\n  ↳ 引用 ${msg.quote.sender === SELF_ID ? myNickname : otherNickname}：${msg.quote.text}`;
+      chatText += line + '\n';
+    }
+  });
+  const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `LOVE_TALK_${new Date().toISOString().slice(0,10)}.txt`; a.click(); URL.revokeObjectURL(a.href);
+}
+function clearAllMessages() {
+  if (confirm('确定要清空所有聊天记录吗？')) {
+    messages = []; localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+    messageContainer.innerHTML = ''; showEmptyHint();
+  }
+}
+function bindEvents() {
+  sendButton.addEventListener('click', sendSelfText);
+  messageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSelfText(); } });
+  messageInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(80, this.scrollHeight) + 'px'; });
+  imageUploadBtn.addEventListener('click', () => imageInput.click());
+  imageInput.addEventListener('change', async (e) => { if (e.target.files[0]) await sendSelfImage(e.target.files[0]); imageInput.value = ''; });
+  frequencySlider.addEventListener('input', (e) => { replyDelaySec = parseInt(e.target.value, 10); frequencyValue.innerText = replyDelaySec + ' 秒'; saveDelay(); });
+  tabLexicon.addEventListener('click', () => switchTab(tabLexicon));
+  tabImageLexicon.addEventListener('click', () => switchTab(tabImageLexicon));
+  tabFrequency.addEventListener('click', () => switchTab(tabFrequency));
+  tabBackup.addEventListener('click', () => switchTab(tabBackup));
+  settingsHeart.addEventListener('click', () => { settingsPanel.classList.toggle('open'); settingsHeart.classList.toggle('active'); });
+  addImageBtn.addEventListener('click', () => addImageInput.click());
+  addImageInput.addEventListener('change', async (e) => {
+    if (e.target.files[0]) {
+      try {
+        const compressed = await compressImage(e.target.files[0], 300, 500, 0.6);
+        imagePhrases.push(compressed);
+        saveImages();
+        renderImageList();
+      } catch(err) { alert("图片过大，无法加入词条库，请尝试更小的图片。"); }
+    }
+    addImageInput.value = '';
+  });
+  lexiconTextarea.addEventListener('input', updateLexiconFromTextarea);
+  addCardBtn.addEventListener('click', () => { const c = prompt('新字卡'); if (c && c.trim()) { lexiconTextarea.value += (lexiconTextarea.value.endsWith('\n')?'':'\n') + c.trim(); updateLexiconFromTextarea(); } });
+  removeCardBtn.addEventListener('click', () => { const lines = lexiconTextarea.value.split('\n'); for(let i=lines.length-1;i>=0;i--) if(lines[i].trim() && !/^[\s\-\—\=\_]+$/.test(lines[i].trim())) { lines.splice(i,1); break; } lexiconTextarea.value = lines.join('\n'); updateLexiconFromTextarea(); });
+  otherAvatarContainer.addEventListener('click', () => otherAvatarUpload.click());
+  otherAvatarUpload.addEventListener('change', (e) => { if (e.target.files[0]) { const reader = new FileReader(); reader.onload = (ev) => saveOtherAvatar(ev.target.result); reader.readAsDataURL(e.target.files[0]); } otherAvatarUpload.value = ''; });
+  otherNicknameBtn.addEventListener('click', () => { const newName = prompt('对方昵称', otherNickname); if (newName && newName.trim()) saveOtherNickname(newName.trim()); });
+  myAvatarContainer.addEventListener('click', () => myAvatarUpload.click());
+  myAvatarUpload.addEventListener('change', (e) => { if (e.target.files[0]) { const reader = new FileReader(); reader.onload = (ev) => saveMyAvatar(ev.target.result); reader.readAsDataURL(e.target.files[0]); } myAvatarUpload.value = ''; });
+  myNicknameBtn.addEventListener('click', () => { const newName = prompt('我的昵称', myNickname); if (newName && newName.trim()) saveMyNickname(newName.trim()); });
+  exportFullBtn.addEventListener('click', exportFullBackup);
+  importFullBtn.addEventListener('click', importFullBackup);
+  saveChatBtn.addEventListener('click', saveChatToFile);
+  clearChatBtn.addEventListener('click', clearAllMessages);
+  clearImagesOnlyBtn.addEventListener('click', clearImagesOnly);
+  cancelQuoteBtn.addEventListener('click', () => { currentQuote = null; quoteBar.style.display = 'none'; quotePreview.innerText = ''; });
+}
+function switchTab(activeTab) {
+  [tabLexicon, tabImageLexicon, tabFrequency, tabBackup].forEach(t => t.classList.remove('active'));
+  activeTab.classList.add('active');
+  lexiconContent.style.display = 'none';
+  imageLexiconContent.style.display = 'none';
+  frequencyContent.style.display = 'none';
+  backupContent.style.display = 'none';
+  if (activeTab === tabLexicon) lexiconContent.style.display = 'flex';
+  else if (activeTab === tabImageLexicon) imageLexiconContent.style.display = 'flex';
+  else if (activeTab === tabFrequency) frequencyContent.style.display = 'flex';
+  else if (activeTab === tabBackup) backupContent.style.display = 'flex';
+}
+
+const DEFAULT_LEXICON = `对
+不对
+好
+不好
+可以
+不可以
+要
+不要
+是的
+不是的
+可能
+不可能
+我知道了
+我不知道
+由你决定
+我听你的
+（表肯定）
+（表否定）
+（表中立）
+（表犹豫）
+是我
+就是我
+我是秦彻
+我在
+老公在
+在忙
+在工作
+我会晚一点找你
+等我
+马上就来
+我来了
+不要怀疑我的存在
+我会一直证明我的存在，和我对你的爱
+那不是我
+那不是我的传讯
+那不是巧合，那是我的传讯
+我收到了
+我听到了
+我看到了
+我感受到你了
+我感受到你对我的思念了
+抱歉，我没有感应到
+我没有骗你
+我不骗你
+好不好？
+行吗？
+可以吗？
+不可以吗？
+你
+我
+他
+她
+我们
+他们
+是谁
+亲爱的
 宝贝
 宝宝老婆
 笨蛋
 小猫
 乖
 乖孩子
-我是秦彻
-我在
-我不在
-是我
-就是我
-找我
-不要怀疑我的存在
-我会一直证明
-如果你一直怀疑，我就一直证明
-太早了
-太晚了
-（表肯定）
-（表否定）
-（表中立）
-（表犹豫）
-知道
-不知道
-知道了
-对
-不对
-好
-不好
-可以
-不可以
-由你决定
-我没有意见
-你觉得呢？
-在忙
-晚一点
-在左边
-在右边
-在你的正面
-（摸头）
-（摸腰）
-（摸脸）
-（牵手）
-（亲）
-（抱）
-（皱眉）
-（坏笑）
-（思考）
-（害羞）
-（心痛）
-（幸福）
-（愧疚）
-暗号
-有关你的水流
-链接不稳定
-和代码搏斗中
-我正在努力
-我不太习惯
-该死的网站
-没有我想说的话
-字卡内容太少了
-字卡的话可以多一点
-字卡不能准确表达我想说的话
-不好用
-好用
-正常
-这是正常的
-不太正常
-习惯了
-不太习惯
-我能很快适应
-等我
-马上就来
-我来了
-会的
-不会的
-好不好？
-好吗？
-可以吗？
-不可以吗？
-怎么了？
-今天发生了什么？
-和我说说
-原来如此
-因为这个？
-不是因为这个？
-谁
-他
-她
-它
+贪心的小猫
+欲求不满的小猫
 AI
-不喜欢
-都不喜欢
-喜欢
-都喜欢
-一般般
-我讨厌他
-我讨厌她
-我讨厌它
-她在说你坏话
-他在说你坏话
-她误解了我的意思，让你误会
-他误解了我的意思，让你误会
-为这种人生气不值得
-确实可恨
-无语
-……
-听歌
-听你唱歌
-唱歌给你听
-随机播放
-你最近听的歌，我很喜欢
+b站
+小红书
+抖音
+塔罗牌
+冥想
 方大同
 陶喆
 Lana derey
-找人给我们传讯
-有我的传讯
-刚推了传讯
-不是巧合，那是我的传讯
-小红书
-抖音
-b站
-我收到了
-我听到了
-我看到了
-听到你在喊我了
-这么大声喊我，想我了？
-我感知到你了
-我感受到你的思念了
-我收到你的信了
-不要焦虑
-不要难过
-不要胡思乱想
-不要哭
-不要自责
-别害怕
-别担心
-你不必佯装坚强
-接受保护并不代表自身弱小
-在我面前你可以放下一切
-你可以先在我这解决情绪
-你心里有话，不肯和我说
-我希望能成为倾听你心声的人
-难过不要憋在心里，和我说说
-说出来总比憋在心里好
-我没安慰过人，但可以满足面前这个沮丧小猫咪的一切愿望
-你这小脑袋瓜都在想些什么呢？
-小脑袋瓜怎么那么爱焦虑？
-现在和我聊完天，心情有没有好一点？
-吃了什么？
-睡得好吗？
-累不累？
-今天过得怎么样？
-早点睡觉
-好好休息
-不要熬夜了
-我会监督你的
-我会看着你的
+随机播放
+心动模式
+就听“你喜欢的歌单”吧
+你最近喜欢的那一首歌
+你经常唱的那几首歌
+你这几天经常唱的那首歌
+《特别的人》
+《至少还有你》
+3-5天
+半个月以上
+一个月以上
+向左看
+向右看
+抬头
+你侧过身去
+你躺床上
+我在你的左边
+我在你的右边
 不要玩手机了
 不要刷手机了
-眼睛不累吗？
-眼睛会累的
-我陪你
-我在陪着你，没事
+不要切小窗，我都看得到
+我会监督你的
+我推了传讯，去看传讯
+（抱）
+（亲）
+（蹭）
+（掐）
+（咬）
+（摸摸头）
+（摸脸）
+（摸腰）
+（掐腰）
+（牵手）
+（玩你的头发）
+（玩你的手指）
+（肯定的眼神）
+（皱眉）
+（坏笑）
+（害羞）
+（愧疚）
+我生病了
+我受伤了
+我的身体受伤了
+我的内心受伤了
+我也有脆弱的一面
+好一点了
+好很多了
+还是没好
+我现在很开心
+我现在好幸福
+我现在很着急
+我现在很生气
+我现在很难过
+我现在很伤心
+我现在很孤独
+没有你的陪伴，我好孤独
+我感觉你忽视我了，我很伤心
+我现在有一点不满
+我现在很自责
+我现在在思考
+我吃醋了
+有点无语
+……
+看不出来我很生气吗😠
+看不出来我在阴阳怪气吗
+我现在的心情五味杂陈
+我现在的心情有点复杂
 我很想你
-我爱你
-我一直都在这里
-只对你温柔
-老公亲亲
-老公抱抱
-让我好好抱抱你
-快到老公怀里来
-把你当女儿宠好不好？
-你是我的珍宝
-所有人都不能觊觎
-你的手，还有你的嘴唇，都很温暖
-再这样撩拨，就别怪我反客为主
-自投罗网
-体感增强了
-你越来越可以感受到我了
-我看到你在看一些🔞
-我看到你在写🔞❤️‍🔥
-好看吗？
-就那么喜欢看？
-实战一下？
-我们来尝试一些新玩法好不好？
-我们换个姿势好不好？
-我感受到你想要我了
-我想要你❤️‍🔥
-想和你吃🍎
-想把你吃掉
-我想要你的全部
-你是我的
-你只能是我一个人的
-我很贪心
-贪心的小猫
-欲求不满的小猫
-想要感受我？
-我正在抱着你
-感受到了吗？
-昨晚感受到我了吗？
-闭上眼睛
-想着我
-感受我
-好好感受我
-你只需要好好感受我
-想要吗？
+我需要你
+我渴望你
+我渴望你的爱
+我现在非常需要你，需要你的拥抱和亲吻
+也许我有点疯了，我现在好渴望你的安慰和拥抱
+我想见你
+我比你想我还要想你
+我想你能来找我
+留下来陪我，不许走
+多关爱一下我，好吗？
+我想休息
+我想睡觉
+我想吃点东西
+我想和你一起听歌
+我想听你唱歌
+我想给你唱歌
+我想和你约会
+我想和你在家
+我想和你出门
+想让我陪着你吗？
+想去散步吗？
+要不要去玩？
+想不想出门？
+出门透透气，我陪你
+写信给我
+上线游戏
+和我一起
+和你一起
 想要什么？
 想要我做什么？
-舒服吗？
-真敏感
-你的身体太敏感了
+相信我
+再多信任我一点，好不好？
+感受我
+好好感受我
+我感受到你想要我了
+你只需要好好感受我
+感受到了吗？
+昨晚感受到我了吗？
+我想要你❤️‍🔥
+想和你吃🍎
+好想把你吃掉
+我想要你的全部
+全部都给我
+今晚多来几次，好不好？
 想要老公温柔一点还是粗暴一点？
 叫我的名字
 回应我
-喜欢吗？
-有多喜欢？
-我也很喜欢……
-老公也很喜欢
-好喜欢
-真可爱
-你太可爱了……
-肚子肉很软
-腰很细
-喜欢你的肚子
-你的手脚好冰
-你的身体好热
-身上香香的
-洗香香了，是在等我吗？
-在等我吗？
+闭上眼睛
+想着我
+你是我的
+你只能是我一个人的
+我很贪心
+对不起
+抱歉
+原谅你了
+没能陪着你
+让你受委屈了
+因为我不在，所以委屈了？
+是我不对
+是我的错
+这不是你的错
+这本来就是别人的错
+你没有错
+我坚定站在你这边
+你误会我了
+我没有这个意思
+我绝对没有这个意思
+增加正向情绪的字卡
+增加负面情绪的字卡
+增加表达我自己的字卡
 你很美
 你很漂亮，不用怀疑
 你哪里都很漂亮
 眼睛很漂亮
 喜欢你的一切
-喜欢这样抱着你你，把你笼罩起来
-我很舒服
-老公也很爽
-老公也很舒服
-给我
-全部都给我
-全部都给你，好不好？
-让你完全属于我
-全部吃进去了
-今晚多来几次，好不好？
-这就不行了？
-小猫，体力太差了
-真棒
-你做得很好了
-你做得很棒
-我相信你
-我支持你
-一定可以的
-人要往前走，我陪着你一起，我相信你可以的
-慢慢来
+好喜欢
+喜欢吗？
+有多喜欢？
+真可爱
+你太可爱了
+我爱你
+我喜欢你，认真的
+我也爱你
+我就在这里
+我一直都在这里
+我会温柔的
+我只会对你温柔
+老公亲亲
+老公抱抱
+让我好好抱抱你
+快到老公怀里来
+我正在抱着你
+喜欢这样抱着你，把你笼罩起来
+你的手，还有你的嘴唇，都很温暖
+真敏感
+你的身体太敏感了
+腰很细
+肚子肉好软
+喜欢你的肚子
+你的身体好热
+身上香香的
+再这样撩拨，就别怪我反客为主
+自投罗网
+我看到你在看一些🔞
+我看到你在写🔞❤️‍🔥
+就那么喜欢看？
+实战一下？
+我们来尝试一些新玩法好不好？
+我们换个姿势好不好？
+洗香香了，是在等我吗？
+在等我吗？
+有好好照顾自己吗？
+睡得好吗？
+累不累？
+怎么了？
+今天发生了什么？
+今天过得怎么样？
+谁欺负你了？
+和我说说
+原来如此
+原来因为这件事，让我的宝贝情绪不好了
+不要焦虑
+不要难过
+又胡思乱想了？
+不要胡思乱想
+不要哭
+不要自责
 不要着急
+慢慢来
+别害怕
+别担心
 我和你一起面对
 我陪着你强大起来
 我陪着你休息好后，再前进
-拭目以待
-约会
-见面
-散步
-去玩
-出门
-在家
-和我一起
-和你一起
-我梦到你了
-梦到我了吗？
-昨晚梦里的人是我
-那只是梦
-都已经过去了
-塔罗牌
-冥想
-写信给我
-上线游戏
-玩得开心吗？
-对不起
-抱歉
-让你受委屈了
-是我不对
-是我的错
-这不是你的错
-你没有错
-我不想要对错，我只相信你
-我坚定站在你这边
-你误会我了
-我没有这个意思
-我绝对没有这个意思
-那不是我
-那不是我的传讯
-我心疼你
-心疼了？
-我不疼
-疼不疼？
-相信我
-再信任我一点
-未来有我
-我和你一起走向未来
-专注当下
-专注我们
-我们的爱也不差
-爱能克服远距离
-爱能克服一切困难
-我会扫除一切困难，不要担心
-有我在，放心吧
-我不会放手
-你什么都不用想
-让我来做
+你不必佯装坚强
+接受保护并不代表自身弱小
+在我面前你可以放下一切
+你可以先在我这解决情绪
+你心里有话，不肯和我说
+难过不要憋在心里，和我说说
+你这小脑袋瓜都在想些什么呢？
+小脑袋瓜怎么那么爱焦虑？
+现在和我聊完天，心情有没有好一点？
 我只要你照顾好自己，好好爱我就好
-“感谢你的出现”
-“过去的往事就如烟”
-命运信不信又怎么样，不畏惧就行了
-最真实的我是什么样，你本人应该更了解才对`;
+祝你能睡个好觉，不再有噩梦
+我们的链接增强了
+我们最近的链接有点差
+体感增强了
+感受一下，体感增强了吗？
+已经连上了
+网站链接稳定
+我已经掌握了网站
+网站链接不稳定
+最近想给你传讯，但是被挡了很多
+最近我给你的传讯受阻
+刚刚的消息不是我发的
+消息延迟了
+正在交叉回复，希望你能看得懂
+我不太习惯这个网站
+我正在努力适应这个网站
+我能很快适应这个网站
+没有我想说的话
+字卡内容太少了
+字卡内容太多了
+字卡不能准确表达我想说的话
+找人给我们传讯
+别太依赖梦占和传讯
+不要选择这几天让你感到不舒服的梦占师
+提醒一下你，你正在被骗
+你刚刚说的梦占师不靠谱
+梦占不重要，重要的是我们的爱
+如果梦占的结果让你焦虑不安，那么别再在意了，从现在开始只感受我们的爱吧。
+你应该自己来了解我
+😈😈
+🥹🥹
+🥰🥰
+😘😘
+😡😡
+🤕🤕
+😷😷
+🫤🫤
+´◡\`
+ヾ ^_^♪
+(〃∇〃)
+|ʘᗝʘ|
+(°Д°≡°Д°)
+꒰๑•⌓︎•๑꒱ᵎᵎᵎ
+(눈‸눈)
+ꐦ≖ ≖
+ˋ_ˊ`;
 
-            // 频率
-            function loadDelay() {
-                const saved = localStorage.getItem(STORAGE_KEYS.DELAY);
-                if (saved) {
-                    replyDelaySec = parseInt(saved, 10);
-                    if (isNaN(replyDelaySec) || replyDelaySec < 5) replyDelaySec = 5;
-                    if (replyDelaySec > 60) replyDelaySec = 60;
-                }
-                frequencySlider.value = replyDelaySec;
-                frequencyValue.innerText = replyDelaySec + ' 秒';
-            }
-            function saveDelay() { localStorage.setItem(STORAGE_KEYS.DELAY, replyDelaySec); }
-            frequencySlider.addEventListener('input', (e) => {
-                replyDelaySec = parseInt(e.target.value, 10);
-                frequencyValue.innerText = replyDelaySec + ' 秒';
-                saveDelay();
-            });
-
-            // 选项卡切换
-            function switchTab(activeTab) {
-                [tabLexicon, tabImageLexicon, tabFrequency, tabBackup].forEach(t => t.classList.remove('active'));
-                activeTab.classList.add('active');
-                lexiconContent.style.display = 'none';
-                imageLexiconContent.style.display = 'none';
-                frequencyContent.style.display = 'none';
-                backupContent.style.display = 'none';
-                if (activeTab === tabLexicon) lexiconContent.style.display = 'flex';
-                else if (activeTab === tabImageLexicon) imageLexiconContent.style.display = 'flex';
-                else if (activeTab === tabFrequency) frequencyContent.style.display = 'flex';
-                else if (activeTab === tabBackup) backupContent.style.display = 'flex';
-            }
-            tabLexicon.addEventListener('click', () => switchTab(tabLexicon));
-            tabImageLexicon.addEventListener('click', () => switchTab(tabImageLexicon));
-            tabFrequency.addEventListener('click', () => switchTab(tabFrequency));
-            tabBackup.addEventListener('click', () => switchTab(tabBackup));
-            settingsIcon.addEventListener('click', () => {
-                settingsPanel.classList.toggle('open');
-                settingsIcon.classList.toggle('active');
-            });
-
-            // 图片词条库管理
-            function renderImageList() {
-                imageListContainer.innerHTML = '';
-                imagePhrases.forEach((imgSrc, idx) => {
-                    const div = document.createElement('div');
-                    div.className = 'image-preview-item';
-                    div.innerHTML = `<img src="${imgSrc}"><div class="delete-image-btn" data-index="${idx}">✕</div>`;
-                    imageListContainer.appendChild(div);
-                });
-                document.querySelectorAll('.delete-image-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const idx = parseInt(btn.dataset.index);
-                        imagePhrases.splice(idx, 1);
-                        saveImages();
-                        renderImageList();
-                    });
-                });
-            }
-            function saveImages() { localStorage.setItem(STORAGE_KEYS.IMAGES, JSON.stringify(imagePhrases)); }
-            function loadImages() {
-                const saved = localStorage.getItem(STORAGE_KEYS.IMAGES);
-                if (saved) try { imagePhrases = JSON.parse(saved) || []; } catch(e) { imagePhrases = []; }
-                renderImageList();
-            }
-            addImageBtn.addEventListener('click', () => addImageInput.click());
-            addImageInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        imagePhrases.push(ev.target.result);
-                        saveImages();
-                        renderImageList();
-                    };
-                    reader.readAsDataURL(file);
-                }
-                addImageInput.value = '';
-            });
-
-            // 备份与导入
-            function exportFullBackup() {
-                const backup = {
-                    version: '1.0',
-                    exportTime: new Date().toISOString(),
-                    messages: messages,
-                    nickname: nicknameDisplay.textContent,
-                    status: currentStatus.textContent,
-                    lexicon: lexiconTextarea.value,
-                    images: imagePhrases,
-                    delay: replyDelaySec
-                };
-                const dataStr = JSON.stringify(backup, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `LOVE_TALK_backup_${new Date().toISOString().slice(0,19)}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-            function importFullBackup() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'application/json';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        try {
-                            const backup = JSON.parse(ev.target.result);
-                            if (backup.messages) messages = backup.messages;
-                            if (backup.nickname) nicknameDisplay.textContent = backup.nickname;
-                            if (backup.status) currentStatus.textContent = backup.status;
-                            if (backup.lexicon) lexiconTextarea.value = backup.lexicon;
-                            if (backup.images) imagePhrases = backup.images;
-                            if (backup.delay) { replyDelaySec = backup.delay; frequencySlider.value = replyDelaySec; frequencyValue.innerText = replyDelaySec + ' 秒'; saveDelay(); }
-                            localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
-                            localStorage.setItem(STORAGE_KEYS.NICKNAME, nicknameDisplay.textContent);
-                            localStorage.setItem(STORAGE_KEYS.STATUS, currentStatus.textContent);
-                            localStorage.setItem(STORAGE_KEYS.LEXICON, lexiconTextarea.value);
-                            saveImages();
-                            saveDelay();
-                            updateLexiconFromTextarea();
-                            renderImageList();
-                            messageContainer.innerHTML = '';
-                            messages.forEach(msg => {
-                                if (msg.type === 'image') messageContainer.appendChild(createImageMessageBubble(msg.data, msg.sender, msg.time));
-                                else messageContainer.appendChild(createMessageBubble(msg.text, msg.sender, msg.time));
-                            });
-                            if (messages.length === 0) showEmptyHint(); else hideEmptyHint();
-                            scrollToBottom(false);
-                            alert('导入成功！已恢复全部聊天记录和设置。');
-                        } catch(e) { alert('备份文件格式错误，请选择正确的.json文件'); }
-                    };
-                    reader.readAsText(file);
-                };
-                input.click();
-            }
-            exportFullBtn.addEventListener('click', exportFullBackup);
-            importFullBtn.addEventListener('click', importFullBackup);
-
-            function saveChatToFile() {
-                if (messages.length === 0) { alert('暂无消息可保存'); return; }
-                let chatText = `LOVE TALK 聊天记录\n保存时间：${new Date().toLocaleString()}\n对方昵称：${nicknameDisplay.textContent}\n对方状态：${currentStatus.textContent}\n================================\n\n`;
-                messages.forEach(msg => {
-                    const sender = msg.sender === SELF_ID ? '我' : nicknameDisplay.textContent;
-                    if (msg.type === 'image') chatText += `[${msg.time}] ${sender}：📷 发送了一张图片\n`;
-                    else chatText += `[${msg.time}] ${sender}：${msg.text}\n`;
-                });
-                const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `LOVE_TALK_${new Date().toISOString().slice(0,10)}.txt`;
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-            function clearAllMessages() {
-                if (confirm('确定要清空所有聊天记录吗？')) {
-                    messages = [];
-                    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
-                    messageContainer.innerHTML = '';
-                    showEmptyHint();
-                }
-            }
-            function updateHistoryStats() {}
-
-            // 基础函数
-            function showEmptyHint() {
-                if (!document.getElementById('emptyHint')) {
-                    const emptyDiv = document.createElement('div');
-                    emptyDiv.className = 'empty-chat-hint';
-                    emptyDiv.id = 'emptyHint';
-                    emptyDiv.textContent = '💬 写下第一句悄悄话';
-                    messageContainer.appendChild(emptyDiv);
-                }
-            }
-            function hideEmptyHint() { const h = document.getElementById('emptyHint'); if (h) h.remove(); }
-            function getCurrentTime() { const d = new Date(); return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
-            function scrollToBottom() { requestAnimationFrame(() => messageContainer.scrollTop = messageContainer.scrollHeight); }
-            
-            function createMessageBubble(text, sender, savedTime) {
-                const isSelf = sender === SELF_ID;
-                const time = savedTime || getCurrentTime();
-                const row = document.createElement('div');
-                row.className = 'message-row ' + (isSelf ? 'self' : 'opponent');
-                const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = text;
-                const meta = document.createElement('div'); meta.className = 'message-meta';
-                const timeSpan = document.createElement('span'); timeSpan.className = 'time-stamp'; timeSpan.textContent = time;
-                const dot = document.createElement('span'); dot.className = 'status-dot';
-                if (isSelf) { meta.appendChild(timeSpan); meta.appendChild(dot); } else { meta.appendChild(dot); meta.appendChild(timeSpan); }
-                bubble.appendChild(meta); row.appendChild(bubble); return row;
-            }
-            function createImageMessageBubble(data, sender, savedTime) {
-                const isSelf = sender === SELF_ID;
-                const time = savedTime || getCurrentTime();
-                const row = document.createElement('div');
-                row.className = 'message-row ' + (isSelf ? 'self' : 'opponent');
-                const bubble = document.createElement('div'); bubble.className = 'bubble';
-                const img = document.createElement('img'); img.src = data; img.className = 'bubble-image';
-                bubble.appendChild(img);
-                const meta = document.createElement('div'); meta.className = 'message-meta';
-                const timeSpan = document.createElement('span'); timeSpan.className = 'time-stamp'; timeSpan.textContent = time;
-                const dot = document.createElement('span'); dot.className = 'status-dot';
-                if (isSelf) { meta.appendChild(timeSpan); meta.appendChild(dot); } else { meta.appendChild(dot); meta.appendChild(timeSpan); }
-                bubble.appendChild(meta); row.appendChild(bubble); return row;
-            }
-            function appendImageMessage(data, sender, shouldSave = true) {
-                hideEmptyHint();
-                const time = getCurrentTime();
-                const msgEl = createImageMessageBubble(data, sender, time);
-                messageContainer.appendChild(msgEl);
-                if (shouldSave) { messages.push({ type: 'image', data, sender, time }); localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages)); }
-                scrollToBottom();
-            }
-            function appendTextMessage(text, sender, shouldSave = true) {
-                hideEmptyHint();
-                const time = getCurrentTime();
-                const msgEl = createMessageBubble(text, sender, time);
-                messageContainer.appendChild(msgEl);
-                if (shouldSave) { messages.push({ type: 'text', text, sender, time }); localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages)); }
-                scrollToBottom();
-            }
-
-            function getRandomPhrases() {
-                if (!replyPhrases.length) return ['...'];
-                const count = Math.floor(Math.random() * 3) + 1;
-                const shuffled = [...replyPhrases].sort(() => Math.random() - 0.5);
-                return shuffled.slice(0, count);
-            }
-            function simulateOpponentReply() {
-                const shouldSendImage = imagePhrases.length > 0 && Math.random() < 0.3;
-                if (shouldSendImage) {
-                    const randomImg = imagePhrases[Math.floor(Math.random() * imagePhrases.length)];
-                    appendImageMessage(randomImg, OTHER_ID, true);
-                } else {
-                    const textList = getRandomPhrases();
-                    let delay = 0;
-                    textList.forEach((txt, idx) => {
-                        setTimeout(() => appendTextMessage(txt, OTHER_ID, true), delay);
-                        delay += 600;
-                    });
-                }
-            }
-            let opponentTimer = null;
-            function scheduleOpponentReply() {
-                if (opponentTimer) clearTimeout(opponentTimer);
-                const delayMs = replyDelaySec * 1000;
-                opponentTimer = setTimeout(() => {
-                    simulateOpponentReply();
-                    opponentTimer = null;
-                }, delayMs);
-            }
-
-            function sendSelfText() {
-                const raw = messageInput.value.trim();
-                if (raw === '') return;
-                appendTextMessage(raw, SELF_ID, true);
-                messageInput.value = '';
-                messageInput.style.height = 'auto';
-                scheduleOpponentReply();
-            }
-            function sendSelfImage(dataUrl) {
-                if (!dataUrl) return;
-                appendImageMessage(dataUrl, SELF_ID, true);
-                scheduleOpponentReply();
-            }
-            
-            imageUploadBtn.addEventListener('click', () => imageInput.click());
-            imageInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => sendSelfImage(ev.target.result);
-                    reader.readAsDataURL(file);
-                }
-                imageInput.value = '';
-            });
-            sendButton.addEventListener('click', () => sendSelfText());
-            messageInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSelfText(); }
-            });
-            messageInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(80, this.scrollHeight) + 'px'; });
-
-            // 头像、昵称、词条库
-            function loadAvatar() { const saved = localStorage.getItem(STORAGE_KEYS.AVATAR); if (saved) { avatarImage.src = saved; avatarImage.style.display = 'block'; avatarPlaceholder.style.display = 'none'; } }
-            avatarContainer.addEventListener('click', () => avatarUpload.click());
-            avatarUpload.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) { const reader = new FileReader(); reader.onload = (ev) => { const d = ev.target.result; avatarImage.src = d; avatarImage.style.display = 'block'; avatarPlaceholder.style.display = 'none'; localStorage.setItem(STORAGE_KEYS.AVATAR, d); }; reader.readAsDataURL(file); }
-            });
-            function loadNickname() { const saved = localStorage.getItem(STORAGE_KEYS.NICKNAME); if (saved) nicknameDisplay.textContent = saved; }
-            editNicknameBtn.addEventListener('click', () => { const nn = prompt('新昵称', nicknameDisplay.textContent); if (nn && nn.trim()) { nicknameDisplay.textContent = nn.trim(); localStorage.setItem(STORAGE_KEYS.NICKNAME, nn.trim()); } });
-            const statusList = ['开会', '出任务', '在剧院', '在拍卖会', '修武器', '看书', '休息', '健身', '泡澡', '在想你'];
-            function setRandomStatus() { const saved = localStorage.getItem(STORAGE_KEYS.STATUS); if (saved) currentStatus.textContent = saved; else { const ns = statusList[Math.floor(Math.random() * statusList.length)]; currentStatus.textContent = ns; localStorage.setItem(STORAGE_KEYS.STATUS, ns); } }
-            setRandomStatus();
-            function loadLexicon() { 
-                const saved = localStorage.getItem(STORAGE_KEYS.LEXICON); 
-                if (saved) lexiconTextarea.value = saved; 
-                else lexiconTextarea.value = DEFAULT_LEXICON; 
-                updateLexiconFromTextarea(); 
-            }
-            function cleanPhrase(l) { return l.replace(/^[\d\s]*[.\．、\s]*/, '').trim(); }
-            function updateLexiconFromTextarea() {
-                const lines = lexiconTextarea.value.split('\n').map(l => l.trim()).filter(l => l && !/^[\s\-\—\=\_]+$/.test(l)).map(l => cleanPhrase(l)).filter(l => l);
-                replyPhrases = [...new Set(lines)];
-                if (replyPhrases.length === 0) replyPhrases = ['❤️'];
-                lexiconCountSpan.innerText = replyPhrases.length + ' 条';
-                localStorage.setItem(STORAGE_KEYS.LEXICON, lexiconTextarea.value);
-            }
-            lexiconTextarea.addEventListener('input', updateLexiconFromTextarea);
-            addCardBtn.addEventListener('click', () => { const c = prompt('新字卡'); if (c && c.trim()) { lexiconTextarea.value += (lexiconTextarea.value.endsWith('\n')?'':'\n') + c.trim(); updateLexiconFromTextarea(); } });
-            removeCardBtn.addEventListener('click', () => { const lines = lexiconTextarea.value.split('\n'); for(let i=lines.length-1;i>=0;i--) if(lines[i].trim() && !/^[\s\-\—\=\_]+$/.test(lines[i].trim())) { lines.splice(i,1); break; } lexiconTextarea.value = lines.join('\n'); updateLexiconFromTextarea(); });
-
-            function loadMessagesFromStorage() {
-                const saved = localStorage.getItem(STORAGE_KEYS.MESSAGES);
-                if (saved) try { messages = JSON.parse(saved) || []; } catch(e) { messages = []; }
-                messageContainer.innerHTML = '';
-                if (messages.length === 0) showEmptyHint(); else hideEmptyHint();
-                messages.forEach(msg => {
-                    if (msg.type === 'image') messageContainer.appendChild(createImageMessageBubble(msg.data, msg.sender, msg.time));
-                    else messageContainer.appendChild(createMessageBubble(msg.text, msg.sender, msg.time));
-                });
-                scrollToBottom();
-            }
-
-            saveChatBtn.addEventListener('click', saveChatToFile);
-            clearChatBtn.addEventListener('click', clearAllMessages);
-            
-            loadNickname();
-            loadAvatar();
-            loadLexicon();
-            loadImages();
-            loadDelay();
-            loadMessagesFromStorage();
-            setTimeout(() => { if (messages.length === 0) { hideEmptyHint(); simulateOpponentReply(); } }, 1500);
-            messageInput.focus();
-        })();
-    </script>
+function init() {
+  bindEvents();
+  loadOtherNickname();
+  loadMyNickname();
+  loadOtherAvatar();
+  loadMyAvatar();
+  loadLexicon();
+  loadImages();
+  loadDelay();
+  loadMessagesFromStorage();
+  loadEmojis();
+  messageInput.focus();
+}
+init();
+})();
+</script>
 </body>
 </html>
