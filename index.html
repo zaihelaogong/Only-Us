@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>LOVE TALK · 私语（长按直接引用）</title>
+<title>LOVE TALK · 私语（无已读版本）</title>
 <style>
-/* 完整样式（与上一版完全一致） */
+/* 样式与上一版完全一致，仅移除与 read-tag 相关的样式，但保留无碍，为简洁保留全部样式 */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background-color: #F0F2F0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; color: #5a5a5a; padding: 6px; }
 .love-talk { max-width: 440px; width: 100%; height: 100%; max-height: 720px; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(3px); border-radius: 22px; box-shadow: 0 12px 28px -8px rgba(95, 95, 95, 0.2); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(209, 209, 209, 0.5); }
@@ -71,10 +71,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16p
 .message-meta { display: flex; gap: 6px; font-size: 0.55rem; margin-top: 3px; color: #8a8a8a; align-items: center; }
 .opponent .message-meta { justify-content: flex-start; }
 .self .message-meta { justify-content: flex-end; }
-.read-tag { position: absolute; bottom: -14px; right: 10px; font-size: 0.55rem; color: #8a8a8a; font-style: italic; background: transparent; pointer-events: none; }
-.image-wrapper .read-tag { bottom: -16px; right: 0; }
-.image-wrapper { display: flex; flex-direction: column; align-items: flex-end; position: relative; }
-.opponent .image-wrapper { align-items: flex-start; }
+/* 已移除 read-tag 相关样式 */
 .quote-block { font-size: 0.7rem; color: #8a8a8a; border-left: 3px solid #e1b2b2; padding-left: 8px; margin-bottom: 4px; word-break: break-all; background-color: rgba(0,0,0,0.03); border-radius: 4px; }
 .quote-text { font-style: italic; }
 .quote-bar { background-color: rgba(210, 230, 236, 0.9); padding: 6px 12px; margin: 0 12px 4px 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 0.7rem; color: #5a5a5a; border-left: 3px solid #e1b2b2; }
@@ -338,7 +335,8 @@ async function compressImage(file, maxSizeKB = 300, maxWidth = 500, qualityStart
     reader.onerror = reject;
   });
 }
-function getRandomWillReply() { return Math.random() < 0.5; }
+
+// 随机获取引用（用于对方回复）
 function getRandomQuoteForReply() {
   if (Math.random() > 0.3) return null;
   for (let i = messages.length-1; i >= 0; i--) {
@@ -359,7 +357,7 @@ function createDateSeparator(dateDisplay) {
   return div;
 }
 
-// 核心：创建消息行（优化后的引用逻辑，无弹窗，滑动不触发）
+// 创建消息行（无已读标签）
 function createMessageRow(msg) {
   const isSelf = msg.sender === SELF_ID;
   const row = document.createElement('div');
@@ -385,12 +383,6 @@ function createMessageRow(msg) {
     const timeSpan = document.createElement('span'); timeSpan.textContent = msg.time;
     meta.appendChild(timeSpan);
     wrapper.appendChild(meta);
-    if (isSelf && msg.read === true) {
-      const readTag = document.createElement('div');
-      readTag.className = 'read-tag';
-      readTag.textContent = '已读';
-      wrapper.appendChild(readTag);
-    }
     content = wrapper;
   } else {
     const bubble = document.createElement('div');
@@ -412,12 +404,6 @@ function createMessageRow(msg) {
     const timeSpan = document.createElement('span'); timeSpan.textContent = msg.time;
     meta.appendChild(timeSpan);
     bubble.appendChild(meta);
-    if (isSelf && msg.read === true) {
-      const readTag = document.createElement('div');
-      readTag.className = 'read-tag';
-      readTag.textContent = '已读';
-      bubble.appendChild(readTag);
-    }
     content = bubble;
   }
   if (isSelf) {
@@ -428,7 +414,7 @@ function createMessageRow(msg) {
     row.appendChild(content);
   }
 
-  // ========== 优化后的引用逻辑：无弹窗，滑动不触发 ==========
+  // 引用功能（无弹窗，滑动不触发）
   let touchTimer = null;
   let hasMoved = false;
   const directQuote = () => {
@@ -441,12 +427,7 @@ function createMessageRow(msg) {
     quotePreview.innerText = `引用：${currentQuote.text}`;
     quoteBar.style.display = 'flex';
   };
-  // 右键直接引用
-  row.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    directQuote();
-  });
-  // 移动端长按，带移动检测
+  row.addEventListener('contextmenu', (e) => { e.preventDefault(); directQuote(); });
   row.addEventListener('touchstart', (e) => {
     hasMoved = false;
     touchTimer = setTimeout(() => {
@@ -459,16 +440,10 @@ function createMessageRow(msg) {
   });
   row.addEventListener('touchmove', () => {
     hasMoved = true;
-    if (touchTimer) {
-      clearTimeout(touchTimer);
-      touchTimer = null;
-    }
+    if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
   });
   row.addEventListener('touchend', () => {
-    if (touchTimer) {
-      clearTimeout(touchTimer);
-      touchTimer = null;
-    }
+    if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
   });
   return row;
 }
@@ -501,31 +476,34 @@ function _appendMessage(msg, shouldSave = true) {
   return true;
 }
 
-function appendTextMessage(text, sender, shouldSave = true, willReply = null, quote = null) {
+// 发送文字（无已读判断，直接安排回复）
+function appendTextMessage(text, sender, shouldSave = true, quote = null) {
   try {
     const id = generateId();
     const { dateStr, timeStr, fullTimestamp } = getCurrentDateTime();
     const isSelf = sender === SELF_ID;
-    const msg = { id, type: 'text', text, sender, time: timeStr, date: dateStr, read: isSelf ? true : undefined, timestamp: fullTimestamp };
+    const msg = { id, type: 'text', text, sender, time: timeStr, date: dateStr, timestamp: fullTimestamp };
     if (quote) msg.quote = quote;
     const success = _appendMessage(msg, shouldSave);
     if (!success) return false;
-    const finalWillReply = (isSelf && willReply === null) ? getRandomWillReply() : (willReply !== null ? willReply : false);
-    return finalWillReply;
+    // 如果是自己发送的消息，安排对方回复
+    if (isSelf) scheduleOpponentReply();
+    return true;
   } catch(e) { console.error(e); alert("发送文字失败"); return false; }
 }
 
-function appendImageMessage(data, sender, shouldSave = true, willReply = null, quote = null) {
+// 发送图片（无已读判断）
+function appendImageMessage(data, sender, shouldSave = true, quote = null) {
   try {
     const id = generateId();
     const { dateStr, timeStr, fullTimestamp } = getCurrentDateTime();
     const isSelf = sender === SELF_ID;
-    const msg = { id, type: 'image', data, sender, time: timeStr, date: dateStr, read: isSelf ? true : undefined, timestamp: fullTimestamp };
+    const msg = { id, type: 'image', data, sender, time: timeStr, date: dateStr, timestamp: fullTimestamp };
     if (quote) msg.quote = quote;
     const success = _appendMessage(msg, shouldSave);
     if (!success) return false;
-    const finalWillReply = (isSelf && willReply === null) ? getRandomWillReply() : (willReply !== null ? willReply : false);
-    return finalWillReply;
+    if (isSelf) scheduleOpponentReply();
+    return true;
   } catch(e) { console.error(e); alert("发送图片失败"); return false; }
 }
 
@@ -538,12 +516,11 @@ async function sendSelfImage(file) {
       return;
     }
     const quote = currentQuote ? { ...currentQuote } : null;
-    const willReply = appendImageMessage(compressed, SELF_ID, true, null, quote);
-    if (willReply === false) return;
+    const success = appendImageMessage(compressed, SELF_ID, true, quote);
+    if (!success) return;
     currentQuote = null;
     quoteBar.style.display = 'none';
     quotePreview.innerText = '';
-    scheduleOpponentReplyIfNeeded(willReply);
   } catch (err) {
     alert("图片处理失败: " + (err.message || "请尝试更小的图片"));
   }
@@ -557,12 +534,11 @@ async function sendEmoji(emojiDataUrl) {
     return;
   }
   const quote = currentQuote ? { ...currentQuote } : null;
-  const willReply = appendImageMessage(emojiDataUrl, SELF_ID, true, null, quote);
-  if (willReply === false) return;
+  const success = appendImageMessage(emojiDataUrl, SELF_ID, true, quote);
+  if (!success) return;
   currentQuote = null;
   quoteBar.style.display = 'none';
   quotePreview.innerText = '';
-  scheduleOpponentReplyIfNeeded(willReply);
   messageInput.focus();
 }
 
@@ -570,16 +546,17 @@ function sendSelfText() {
   const raw = messageInput.value.trim();
   if (raw === '') return;
   const quote = currentQuote ? { ...currentQuote } : null;
-  const willReply = appendTextMessage(raw, SELF_ID, true, null, quote);
+  const success = appendTextMessage(raw, SELF_ID, true, quote);
+  if (!success) return;
   messageInput.value = '';
   messageInput.style.height = 'auto';
   currentQuote = null;
   quoteBar.style.display = 'none';
   quotePreview.innerText = '';
-  scheduleOpponentReplyIfNeeded(willReply);
   messageInput.focus();
 }
 
+// 对方回复逻辑（直接调用，无随机不回复）
 function getRandomPhrases() {
   if (!replyPhrases.length) return ['...'];
   const count = Math.floor(Math.random() * 3) + 1;
@@ -591,25 +568,23 @@ function simulateOpponentReply() {
   const shouldSendImage = imagePhrases.length > 0 && Math.random() < 0.3;
   if (shouldSendImage) {
     const randomImg = imagePhrases[Math.floor(Math.random() * imagePhrases.length)];
-    appendImageMessage(randomImg, OTHER_ID, true, null, quote);
+    appendImageMessage(randomImg, OTHER_ID, true, quote);
   } else {
     const textList = getRandomPhrases();
     let delay = 0;
     textList.forEach((txt, idx) => {
-      setTimeout(() => appendTextMessage(txt, OTHER_ID, true, null, quote), delay);
+      setTimeout(() => appendTextMessage(txt, OTHER_ID, true, quote), delay);
       delay += 600;
     });
   }
 }
 let opponentTimer = null;
-function scheduleOpponentReplyIfNeeded(willReply) {
-  if (willReply === true) {
-    if (opponentTimer) clearTimeout(opponentTimer);
-    opponentTimer = setTimeout(() => {
-      simulateOpponentReply();
-      opponentTimer = null;
-    }, replyDelaySec * 1000);
-  }
+function scheduleOpponentReply() {
+  if (opponentTimer) clearTimeout(opponentTimer);
+  opponentTimer = setTimeout(() => {
+    simulateOpponentReply();
+    opponentTimer = null;
+  }, replyDelaySec * 1000);
 }
 
 // 表情库管理
@@ -691,7 +666,7 @@ emojiBtn.addEventListener('click', () => {
   }
 });
 
-// 存储加载
+// 存储加载（原有）
 function loadDelay() {
   const saved = localStorage.getItem(STORAGE_KEYS.DELAY);
   if (saved) {
@@ -962,7 +937,6 @@ function switchTab(activeTab) {
   else if (activeTab === tabFrequency) frequencyContent.style.display = 'flex';
   else if (activeTab === tabBackup) backupContent.style.display = 'flex';
 }
-
 const DEFAULT_LEXICON = `对
 不对
 好
